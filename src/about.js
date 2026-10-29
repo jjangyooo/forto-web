@@ -11,7 +11,8 @@ import compassPoster from './about/compass-poster.jpg';
 import esgUrl from './about/esg.png';
 import moonUrl from './about/moon.webp';
 import colorUrl from './about/color.webp';
-import brandWindowUrl from './about/brand-window.webp';
+import cutoutUrl from './about/cutout.webp';
+import cutoutTopUrl from './about/cutout-top.webp';
 import gridUrl from './about/construction.png';
 import buildingUrl from './about/building.webp';
 // 임시: 인트로/다크 섹션 영상 레이어는 원본 수령 전까지 랜딩 마지막 씬 루프로 대체
@@ -94,7 +95,9 @@ export function createAbout(root) {
   $('.ab-two__esg').src = esgUrl;
   $('.ab-two__moon').src = moonUrl;
   $('.ab-color__img').src = colorUrl;
-  $('.ab-brand__img').src = brandWindowUrl;
+  $('.ab-brand__top').src = cutoutTopUrl;
+  const fly = $('.ab-fly');
+  fly.src = cutoutUrl;
   $('.ab-dark__grid img').src = gridUrl;
   $('.ab-dark__building img').src = buildingUrl;
   const introVideo = $('.ab-intro__video');
@@ -108,7 +111,7 @@ export function createAbout(root) {
 
   // 일반 페이드업 대상 (라벨·이미지)
   $$('.ab-label, .ab-card, .ab-two__esg').forEach((el) => {
-    if (!el.closest('.ab-color, .ab-epi')) el.setAttribute('data-reveal', '');
+    if (!el.closest('.ab-color, .ab-epi') && !el.classList.contains('ab-dark__building')) el.setAttribute('data-reveal', '');
   });
 
   let ctx;
@@ -193,7 +196,7 @@ export function createAbout(root) {
       .to(colorTexts, { '--tc': '#fff', duration: 0.2, ease: 'none' }, 0.72)
       .to({}, { duration: 0.1 });
 
-    /* EPILOGUE → 띠 차오름 → BRAND IDENTITY → 심볼 줌 */
+    /* EPILOGUE → 띠 차오름 → BRAND IDENTITY (pin 앞부분) */
     const bands = $$('.band');
     const startTops = [693, 734, 776, 817, 859];
     const startBottoms = [734, 776, 817, 859, 900];
@@ -202,12 +205,19 @@ export function createAbout(root) {
 
     const brandSpans = $$('.ab-brand__line span');
     const win = $('.ab-brand__window');
-    const winImg = $('.ab-brand__img');
+    const shape = $('.ab-brand__shape');
+    const top = $('.ab-brand__top');
+    const bCard = $('.ab-dark__building');
+    const dark = $('.ab-dark');
+    const pinEl = $('.ab-epi__pin');
     gsap.set(brandSpans, { yPercent: 110, opacity: 0 });
     gsap.set(win, { scale: 0.4, opacity: 0, transformOrigin: '50% 50%' });
 
-    gsap.timeline({
-      scrollTrigger: { trigger: '.ab-epi__pin', pin: true, start: 'top top', end: '+=320%', scrub: 0.8 },
+    // 고정 구간 전체 = 화면 4개 분량. 앞 70%: 띠·타이포 / 뒤 30%: 심볼 창 확장
+    const PIN_LEN = 4;
+    const SPLIT = 0.7;
+    const pinTl = gsap.timeline({
+      scrollTrigger: { trigger: pinEl, pin: true, start: 'top top', end: () => `+=${PIN_LEN * 100}%`, scrub: true, invalidateOnRefresh: true },
     })
       .to('.ab-epi__text', { y: () => -a(80), opacity: 0, duration: 0.25, ease: 'power1.in' }, 0.1)
       .to(bands, {
@@ -216,11 +226,115 @@ export function createAbout(root) {
         duration: 0.45, stagger: 0.05, ease: 'power3.inOut',
       }, 0.05)
       .to(brandSpans, { yPercent: 0, opacity: 1, duration: 0.25, stagger: 0.05, ease: 'expo.out' }, 0.5)
-      .to(win, { scale: 1, opacity: 1, duration: 0.25, ease: 'expo.out' }, 0.55)
-      // 심볼 창이 화면을 덮을 만큼 커지며 검정으로 전환 → 다크 섹션으로 이어짐
-      .to(brandSpans, { opacity: 0, duration: 0.12 }, 1.0)
-      .to(winImg, { opacity: 0, duration: 0.15 }, 1.0)
-      .to(win, { scale: 16, duration: 0.45, ease: 'power3.in' }, 1.0);
+      .fromTo(win, { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, ease: 'expo.out', transformOrigin: '50% 60%' }, 0.55)
+      // 튀어나온 건물도 창과 같은 기준점에서 함께 커짐
+      .fromTo(top, { scale: 0.4, opacity: 0 }, {
+        scale: 1, opacity: 1, duration: 0.25, ease: 'expo.out',
+        transformOrigin: `${((394 + 322.5 - 565.62) / 440.2) * 100}% ${((305 + 123.6 - 138) / 347.76) * 100}%`,
+      }, 0.55);
+    pinTl.to({}, { duration: 0.8 / SPLIT - pinTl.duration() });   // 타임라인 길이를 앞 70%에 맞춤
+
+    /*
+     * 심볼 창 확장 → 누끼 건물이 다음 섹션 카드 속 건물로 착지 (NY Phil 레퍼런스)
+     *  A (pin 뒤 30%): 창이 화면을 덮도록 커지고, 누끼는 창 마스크 안에서 살짝 확대
+     *  B (pin 해제 ~ 다크 섹션 상단 도착): 누끼가 카드 속 같은 건물 위치로 이동·회전
+     *     착지 변환은 누끼 ↔ 카드 사진 특징점 매칭으로 구함 (scale 1.8467, rotate -3.915°)
+     */
+    const LAND = { s: 1.8467, r: -3.915, tx: -339.834, ty: -10.721, imgW: 629 };
+    const CUT = { x: 411.56, y: 129.85, w: 757, h: 589 };     // Figma 7:88 (브랜드 프레임 좌표)
+    const SHAPE_END = { scale: 4.39, dx: -18.5, dy: 214 };      // Figma 7:84 → 7:104
+    const maskUrl = `url("data:image/svg+xml,${encodeURIComponent(shape.outerHTML.replace('fill="#000"', 'fill="#fff"').replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"'))}")`;
+    const clamp01 = (v) => Math.min(1, Math.max(0, v));
+    const smooth = (e0, e1, v) => { const t = clamp01((v - e0) / (e1 - e0)); return t * t * (3 - 2 * t); };
+    const easeIn = gsap.parseEase('power2.in');
+    const easeInOut = gsap.parseEase('power3.inOut');
+    const expoOut = gsap.parseEase('expo.out');
+
+    const brandLines = $$('.ab-brand__line');
+    const topWrap = $('.ab-brand__topwrap');
+
+    function renderTravel(self) {
+      const pinST = pinTl.scrollTrigger;
+      const aStart = pinST.start + (pinST.end - pinST.start) * SPLIT;
+      const aEnd = pinST.end;
+      const bEnd = aEnd + window.innerHeight;
+      const y = self && self.scroll ? self.scroll() : window.scrollY;
+      const pA = clamp01((y - aStart) / (aEnd - aStart));
+      const pB = clamp01((y - aEnd) / (bEnd - aEnd));
+      const A = a(1);
+
+      // 고정 구간 기준 위치를 스크롤 값으로 직접 계산 (트리거 실행 순서와 무관하게 정확)
+      const pinP = clamp01((y - pinST.start) / (pinST.end - pinST.start));
+      const Ptop = y < pinST.start ? pinST.start - y : y > pinST.end ? pinST.end - y : 0;
+      const tWin = clamp01((pinP * pinTl.duration() - 0.55) / 0.25);
+      const eWin = expoOut(tWin);
+      const winScale = 0.4 + 0.6 * eWin;
+      const winOp = eWin;
+
+      // 심볼 창 확장 (안쪽 SVG에 적용)
+      const eA = easeIn(pA);
+      const ss = 1 + (SHAPE_END.scale - 1) * eA;
+      const sdx = SHAPE_END.dx * A * eA, sdy = SHAPE_END.dy * A * eA;
+      gsap.set(shape, { scale: ss, x: sdx, y: sdy, transformOrigin: '50% 50%' });
+      gsap.set([...brandLines, topWrap], { opacity: 1 - smooth(0, 0.35, pA) });
+      gsap.set(bands, { opacity: 1 - smooth(0.6, 1, pA) });
+
+      // 심볼 모양의 화면 위 사각형
+      const L = 394 * A, T = 305 * A + Ptop, Wd = 645 * A, Hd = 206 * A;
+      const ox = L + Wd / 2, oy = T + Hd * 0.6;           // 창 등장 스케일 기준점
+      const scx = L + Wd / 2, scy = T + Hd / 2;           // 확장 기준점
+      const map = (px, py) => {
+        const qx = scx + (px - scx) * ss + sdx, qy = scy + (py - scy) * ss + sdy;
+        return [ox + (qx - ox) * winScale, oy + (qy - oy) * winScale];
+      };
+      const [r0x, r0y] = map(L, T);
+      const [r1x, r1y] = map(L + Wd, T + Hd);
+
+      // 누끼 위치 (다크 섹션 기준 좌표)
+      const D = dark.getBoundingClientRect();
+      const C = bCard.getBoundingClientRect();
+      const k = C.width / LAND.imgW;
+      const zoom = winScale * (1 + 0.12 * eA);
+      const s0 = A * zoom;
+      const x0 = ox + (CUT.x * A - ox) * zoom - D.left;
+      const y0 = oy + (Ptop + CUT.y * A - oy) * zoom - D.top;
+      const s1 = k * LAND.s;
+      const x1 = C.left - D.left + LAND.tx * k;
+      const y1 = C.top - D.top + LAND.ty * k;
+      const eB = easeInOut(pB);
+      const visible = pB > 0 || winOp > 0.01;
+      gsap.set(fly, {
+        x: x0 + (x1 - x0) * eB,
+        y: y0 + (y1 - y0) * eB,
+        scale: s0 + (s1 - s0) * eB,
+        rotation: LAND.r * eB,
+        visibility: visible ? 'visible' : 'hidden',
+        opacity: pB > 0 ? 1 - smooth(0.82, 1, pB) : winOp,
+      });
+      gsap.set(bCard, { opacity: smooth(0.7, 1, pB) });
+
+      // 착지 전까지 누끼는 심볼 창 모양으로만 보임
+      if (visible && pB === 0) {
+        const fx = x0 + D.left, fy = y0 + D.top;
+        fly.style.webkitMaskImage = fly.style.maskImage = maskUrl;
+        fly.style.webkitMaskSize = fly.style.maskSize = `${(r1x - r0x) / s0}px ${(r1y - r0y) / s0}px`;
+        fly.style.webkitMaskPosition = fly.style.maskPosition = `${(r0x - fx) / s0}px ${(r0y - fy) / s0}px`;
+      } else {
+        fly.style.webkitMaskImage = fly.style.maskImage = 'none';
+      }
+    }
+
+    ScrollTrigger.create({
+      trigger: pinEl,
+      start: () => pinTl.scrollTrigger.start - 2,
+      end: () => pinTl.scrollTrigger.end + window.innerHeight + 2,
+      invalidateOnRefresh: true,
+      onUpdate: renderTravel,
+      onRefresh: renderTravel,
+      onLeaveBack: renderTravel,
+      onLeave: renderTravel,
+    });
+    renderTravel();
 
     /* 인트로 영상 박스 확장: About 진입 0.6s 후 (Figma AFTER_TIMEOUT 0.6s)
        맨 위로 되돌아오면 다시 작은 박스 → 0.6s 후 확장 */

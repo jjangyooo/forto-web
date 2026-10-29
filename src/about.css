@@ -269,12 +269,39 @@ html.is-about .stage { display: none; }
   height: calc(206 * var(--a));
   will-change: transform;
 }
-.ab-brand__shape, .ab-brand__img {
+.ab-brand__shape {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
+  overflow: visible;
+}
+.ab-brand__topwrap { position: absolute; inset: 0; }
+.ab-brand__top {
+  position: absolute;
+  left: calc(565.62 * var(--a));
+  top: calc(138 * var(--a));
+  width: calc(440.2 * var(--a));
+  height: calc(347.76 * var(--a));
+  display: block;
+}
+
+/* 누끼 건물: 원본 픽셀 크기로 두고 transform으로 위치·크기·회전을 모두 제어 */
+.ab-fly {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 757px;
+  height: 589px;
+  max-width: none;
+  transform-origin: 0 0;
+  pointer-events: none;
+  z-index: 4;
+  visibility: hidden;
+  will-change: transform, opacity;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 /* ---------- 다크 섹션 ---------- */
