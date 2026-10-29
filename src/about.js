@@ -146,12 +146,40 @@ export function createAbout(root) {
         });
     });
 
-    /* 매니페스토: 스크롤에 맞춰 줄별로 올라오고 하이라이트가 왼쪽부터 칠해짐 */
+    /*
+     * 매니페스토: 줄이 올라온 뒤, 하이라이트마다 붙어 있던 두 번개(⚡) 중 오른쪽 번개가
+     * 튕기듯 미끄러져 나가며 그 사이로 컬러 띠가 마스킹되어 열림 (레퍼런스 영상 0.3s)
+     * 들어올 때 재생, 위로 되돌아가면 역재생
+     */
     const lines = $$('.ab-manifesto__art .ln');
-    const hls = $$('.ab-manifesto__art .hl');
-    gsap.timeline({ scrollTrigger: { trigger: '.ab-manifesto', start: 'top 85%', end: 'center 45%', scrub: 0.6 } })
-      .fromTo(lines, { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: 0.18, duration: 0.5, ease: 'power2.out' })
-      .fromTo(hls, { scaleX: 0 }, { scaleX: 1, stagger: 0.12, duration: 0.5, ease: 'power2.inOut' }, 0.25);
+    const units = $$('.ab-manifesto__art .hlu').map((g) => {
+      const d = g.dataset;
+      const clipId = g.querySelector('.hlu__band').getAttribute('clip-path').match(/#([^)]+)/)[1];
+      const rect = root.querySelector(`#${clipId} rect`);
+      const right = g.querySelector('.bolt--r');
+      const left = g.querySelector('.bolt--l');
+      const bx0 = +d.bx0, lx = +d.lx, rx = +d.rx, bw = +d.bw;
+      const startDx = (lx + bw * 0.72) - rx;            // 시작: 오른쪽 번개가 왼쪽 번개에 붙어 있음
+      const st = { p: 0 };
+      const render = () => {
+        const dx = startDx * (1 - st.p);
+        right.setAttribute('transform', `translate(${dx.toFixed(2)} 0)`);
+        const edge = rx + dx + bw * 0.55;                // 띠는 오른쪽 번개 가운데까지 열림
+        rect.setAttribute('width', Math.max(0, edge - (bx0 - 2)).toFixed(2));
+      };
+      render();
+      return { st, render, right, left, band: g.querySelector('.hlu__band') };
+    });
+    const mTl = gsap.timeline({ paused: true })
+      .fromTo(lines, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: 'expo.out' }, 0);
+    units.forEach((u, i) => {
+      mTl.fromTo(u.st, { p: 0 }, { p: 1, duration: 0.4, ease: 'back.out(1.15)', onUpdate: u.render }, 0.35 + i * 0.16);
+    });
+    ScrollTrigger.create({
+      trigger: '.ab-manifesto', start: 'top 70%',
+      onEnter: () => mTl.timeScale(1).play(),
+      onLeaveBack: () => mTl.timeScale(1.6).reverse(),
+    });
 
     /* PROLOGUE: 스크롤할수록 로켓만 상승 */
     gsap.fromTo('.ab-prologue__rocket',

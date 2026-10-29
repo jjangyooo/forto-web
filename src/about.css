@@ -113,7 +113,7 @@ html.is-about .stage { display: none; }
   width: calc(1237 * var(--a));
 }
 .ab-manifesto__art svg { display: block; width: 100%; height: auto; overflow: visible; }
-.ab-manifesto__art .hl { transform-box: fill-box; transform-origin: 0% 50%; }
+
 
 /* ---------- PROLOGUE ---------- */
 .ab-prologue { height: calc(1178 * var(--a)); }
