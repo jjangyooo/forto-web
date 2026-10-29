@@ -42,10 +42,106 @@
     <a class="enter" href="#about">ENTER</a>
   </main>
 
-  <!-- About: 디자인 수령 전 임시 화면 -->
-  <section class="view about" data-view="about" hidden>
-    <p class="about__placeholder">About</p>
-  </section>
+  <!-- ===== About (Figma page "about") ===== -->
+  <div class="view about" data-view="about" hidden>
+
+    <!-- 인트로: 영상 박스(1062×600) → 0.6s 후 화면 가득 확장 (Figma 7:349) -->
+    <section class="ab-intro">
+      <div class="ab-intro__frame">
+        <video class="ab-intro__video" muted loop playsinline preload="metadata"></video>
+      </div>
+    </section>
+
+    <!-- 매니페스토 (7:128) -->
+    <section class="ab-manifesto">
+      <h2 class="sr-only">FORTO connects earth and moon. Space travel, made familiar. Now into the ordinary.</h2>
+      <div class="ab-manifesto__art" aria-hidden="true"></div>
+    </section>
+
+    <!-- PROLOGUE (7:30) — 스크롤에 따라 로켓만 상승 -->
+    <section class="ab-sec ab-prologue">
+      <div class="ab-text ab-text--prologue">
+        <p class="ab-label">PROLOGUE</p>
+        <h2 class="ab-title echo">이제 우주는,<br />우리의 선택지가 되었다.</h2>
+        <p class="ab-body">비행기의 대중화가 여행의 경계를 넓혔듯이 2048년, 로켓을 통해 그 경계를 우주로 이어갑니다. 이제 우주는 우리의 다음 목적지가 되고, 우주여행은 어린 시절의 꿈을 넘어 우리가 직접 계획하고 선택할 수 있는 여정이 됩니다.</p>
+      </div>
+      <figure class="ab-card ab-prologue__card">
+        <div class="ab-prologue__scene">
+          <img class="ab-prologue__bg" alt="장난감 블록과 행성 모형이 놓인 아이 방" />
+          <img class="ab-prologue__rocket" alt="" />
+        </div>
+      </figure>
+    </section>
+
+    <!-- 01 (7:37) — 스크롤에 따라 나침반 바늘 회전 -->
+    <section class="ab-sec ab-one">
+      <figure class="ab-card ab-one__card">
+        <video class="ab-one__video" muted playsinline preload="auto" aria-label="회전하는 나침반 바늘"></video>
+      </figure>
+      <div class="ab-text ab-text--one">
+        <p class="ab-label">01</p>
+        <h2 class="ab-title echo">지구에선 절대적이지만</h2>
+        <p class="ab-body">지구에서 익숙했던 위아래와 동서남북은 우주에서 더 이상 절대적인 기준이 되지 않습니다. 몸이 향하는 곳이 새로운 앞이 되고, 시선이 닿는 곳마다 또 다른 방향이 열립니다. 정해진 기준을 벗어난 우주에서는 완전히 다른 방식이 필요합니다.</p>
+      </div>
+    </section>
+
+    <!-- 02 (7:46) -->
+    <section class="ab-sec ab-two">
+      <div class="ab-text ab-text--two">
+        <p class="ab-label">02</p>
+        <h2 class="ab-title echo">절대성으로부터<br />가능성으로의 해방</h2>
+        <p class="ab-body">우리는 익숙한 방향의 기준인 <strong>4방위표</strong>에서 출발합니다. 고정된 축을 휘고 교차점을 옮겨, 하나의 방향 안에 여러 가능성을 담았습니다. 여정에 따라 유연하게 변형되고 확장되는 심볼은 자신만의 방향을 찾아가는 여행을 표현합니다.</p>
+      </div>
+      <img class="ab-two__esg" alt="Environment 01, Social 02, Governance 03" />
+      <figure class="ab-card ab-two__card"><img class="ab-two__moon" alt="달 표면" /></figure>
+    </section>
+
+    <!-- 컬러 (7:379) — 카드가 오른쪽에서 들어와 화면 가득 확장 -->
+    <section class="ab-color">
+      <div class="ab-color__pin">
+        <div class="ab-color__card"><img class="ab-color__img" alt="" /></div>
+        <p class="ab-label ab-color__num">02</p>
+        <h2 class="ab-title ab-color__title echo">지구에서 우주로,<br />미지의 나로 사는 여정</h2>
+        <p class="ab-body ab-color__body">컬러는 깊은 블랙 위로 블루와 그린이 스며들며, 지구와 우주 사이의 변화를 표현합니다. 빛의 흐름에 따라 같은 형태가 다른 인상을 드러내듯, 낯선 우주에서 우리는 익숙했던 감각을 새롭게 느끼고 미처 몰랐던 자신을 발견합니다.</p>
+      </div>
+    </section>
+
+    <!-- EPILOGUE → 컬러 띠가 차오름 → BRAND IDENTITY → 심볼 줌 (7:60 → 7:71 → 7:90) -->
+    <section class="ab-epi">
+      <div class="ab-epi__pin">
+        <div class="ab-epi__text">
+          <p class="ab-label">EPILOGUE</p>
+          <h2 class="ab-epi__title echo">New Paths Beyond The Familar</h2>
+          <p class="ab-body">우리는 우주에서 발견한 새로운 방향과 가능성이 여행 이후로도 이어지기를 바랍니다.<br />익숙함을 벗어나 자신만의 방향을 찾는 경험이 우리의 다음 일상을 만듭니다.<br />우주로 향하는 일이 자연스러워지기 위한 그 새로운 비일상을 <span class="ab-forto">FORTO</span>가 열겠습니다.</p>
+        </div>
+        <div class="ab-epi__bands" aria-hidden="true">
+          <span class="band" style="--c:#020910"></span>
+          <span class="band" style="--c:#00d4a2"></span>
+          <span class="band" style="--c:#00f8dd"></span>
+          <span class="band" style="--c:#00ccff"></span>
+          <span class="band" style="--c:#97feff"></span>
+        </div>
+        <div class="ab-brand">
+          <p class="ab-brand__line ab-brand__line--top"><span>FORTO’s</span><span>OWN</span></p>
+          <div class="ab-brand__window">
+            <svg class="ab-brand__shape" viewBox="0 0 645 206" aria-hidden="true"><path d="M645 100.185V95.3847H557.525C599.79 92.7217 634.183 55.4965 634.183 12.9678C634.183 8.55945 633.817 4.22937 633.144 0L83.6187 0C84.2463 4.07273 84.5886 8.24616 84.5886 12.4979C84.5886 57.8686 47.4121 94.7133 1.30084 95.3847H0V95.4966V100.196H102.344L34.8031 205.449H577.459L645 100.196V100.185Z" fill="#000"/></svg>
+            <img class="ab-brand__img" alt="FORTO 사인이 걸린 건물" />
+          </div>
+          <p class="ab-brand__line ab-brand__line--bottom"><span>BRAND</span><span>IDENTITY</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 다크 섹션 (7:90) -->
+    <section class="ab-sec ab-dark">
+      <p class="ab-label ab-dark__num">02</p>
+      <h2 class="ab-title ab-dark__title echo">지구에서 우주로,<br />미지의 나로 사는 여정</h2>
+      <p class="ab-body ab-dark__body">컬러는 깊은 블랙 위로 블루와 그린이 스며들며, 지구와 우주 사이의 변화를 표현합니다. 빛의 흐름에 따라 같은 형태가 다른 인상을 드러내듯, 낯선 우주에서 우리는 익숙했던 감각을 새롭게 느끼고 미처 몰랐던 자신을 발견합니다.</p>
+      <figure class="ab-card ab-dark__video"><video muted loop playsinline preload="none"></video></figure>
+      <figure class="ab-card ab-dark__grid"><img alt="FORTO 심볼 구성 그리드" /></figure>
+      <figure class="ab-card ab-dark__building"><img alt="FORTO 사인이 걸린 건물 외관" /></figure>
+    </section>
+  </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>

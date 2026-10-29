@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import './fonts.css';
 import './style.css';
 import { buildWordmark } from './wordmark.js';
+import { createAbout } from './about.js';
 import logoUrl from './assets/forto-logo.svg';
 import landingUrl from './media/landing.mp4';
 import loopUrl from './media/scene-loop.mp4';
@@ -13,11 +14,12 @@ const loopVideo = document.querySelector('.stage__video--loop');
 const header = document.querySelector('.header');
 const navLinks = [...document.querySelectorAll('.header__nav a')];
 const home = document.querySelector('[data-view="home"]');
-const about = document.querySelector('[data-view="about"]');
+const aboutEl = document.querySelector('[data-view="about"]');
 const glyphs = buildWordmark(document.querySelector('.wordmark'));
 const tagline = document.querySelector('.tagline');
 const enter = document.querySelector('.enter');
 const homeUI = [...glyphs, tagline, enter];
+const about = createAbout(aboutEl);
 
 landingVideo.src = landingUrl;
 loopVideo.src = loopUrl;
@@ -89,7 +91,7 @@ function unit() {
 }
 
 /* ---------- 라우팅: #home / #about ---------- */
-const VIEWS = { home, about };
+const VIEWS = { home, about: aboutEl };
 let current = 'home';
 
 function viewFromHash() {
@@ -104,6 +106,21 @@ function setNav(key) {
   });
 }
 
+function showView(key) {
+  if (key === 'about') {
+    document.documentElement.classList.add('is-about');
+    about.enter();
+  }
+}
+
+function hideView(key) {
+  if (key === 'about') {
+    about.leave();
+    document.documentElement.classList.remove('is-about');
+    loopVideo.play().catch(() => {});
+  }
+}
+
 function go(key, { instant = false } = {}) {
   if (key === current) return;
   const from = VIEWS[current];
@@ -116,24 +133,32 @@ function go(key, { instant = false } = {}) {
   if (!introDone) skipIntro();
 
   const outTargets = prev === 'home' ? homeUI : [from];
-  const tl = gsap.timeline();
-  if (instant || reduce) {
+  const swap = () => {
+    hideView(prev);
     from.hidden = true;
+    gsap.set(outTargets, { clearProps: 'filter,y,opacity,visibility' });
     to.hidden = false;
-    gsap.set(prev === 'home' ? homeUI : from, { autoAlpha: 1, clearProps: 'filter,y' });
-    gsap.set(to, { autoAlpha: 1 });
+    showView(key);
+  };
+
+  if (instant || reduce) {
+    swap();
+    gsap.set(key === 'home' ? homeUI : to, { autoAlpha: 1 });
     return;
   }
+
+  const tl = gsap.timeline();
   tl.to(outTargets, { autoAlpha: 0, y: -12, filter: 'blur(8px)', duration: 0.6, stagger: 0.03, ease: 'power2.in' })
-    .add(() => {
-      from.hidden = true;
-      gsap.set(outTargets, { clearProps: 'filter,y', autoAlpha: 1 });
-      to.hidden = false;
-    })
-    .fromTo(key === 'home' ? homeUI : to,
+    .add(swap);
+  if (key === 'home') {
+    tl.fromTo(homeUI,
       { autoAlpha: 0, y: 16, filter: 'blur(8px)' },
       { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.9, stagger: 0.05, ease: 'expo.out',
         onComplete: () => gsap.set(glyphs, { clearProps: 'filter,transform' }) });
+  } else {
+    // About 루트에는 transform/filter를 남기지 않음 (스크롤 고정(pin)이 깨지지 않도록)
+    tl.fromTo(to, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.out', clearProps: 'opacity' });
+  }
 }
 
 window.addEventListener('hashchange', () => go(viewFromHash()));

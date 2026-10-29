@@ -52,22 +52,6 @@ a { color: inherit; text-decoration: none; }
 
 /* ===== Views (hash 라우팅) ===== */
 .view[hidden] { display: none !important; }
-.about {
-  position: relative;
-  z-index: 5;
-  height: 100svh;
-  display: grid;
-  place-items: center;
-}
-.about__placeholder {
-  margin: 0;
-  font-family: var(--font-display);
-  font-stretch: 120%;
-  font-weight: 600;
-  font-size: calc(48 * var(--u));
-  letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, .5);
-}
 .header__nav a[aria-current="page"] { color: var(--white); }
 
 /* ===== Header (pc_header 1:65) ===== */
@@ -85,7 +69,6 @@ a { color: inherit; text-decoration: none; }
 }
 .header__logo {
   display: block;
-  mix-blend-mode: difference;
   line-height: 0;
 }
 .header__logo img { width: 118px; height: auto; }
