@@ -12,7 +12,6 @@ import esgUrl from './about/esg.png';
 import moonUrl from './about/moon.webp';
 import colorUrl from './about/color.webp';
 import cutoutUrl from './about/cutout.webp';
-import cutoutTopUrl from './about/cutout-top.webp';
 import gridUrl from './about/construction.png';
 import buildingUrl from './about/building.webp';
 // 임시: 인트로/다크 섹션 영상 레이어는 원본 수령 전까지 랜딩 마지막 씬 루프로 대체
@@ -95,7 +94,6 @@ export function createAbout(root) {
   $('.ab-two__esg').src = esgUrl;
   $('.ab-two__moon').src = moonUrl;
   $('.ab-color__img').src = colorUrl;
-  $('.ab-brand__top').src = cutoutTopUrl;
   const fly = $('.ab-fly');
   fly.src = cutoutUrl;
   $('.ab-dark__grid img').src = gridUrl;
@@ -117,6 +115,7 @@ export function createAbout(root) {
   let ctx;
   let lenis;
   let openTimer;
+  let offStep = () => {};
 
   function build() {
     const H = () => $('.ab-color__pin').offsetHeight;
@@ -206,7 +205,6 @@ export function createAbout(root) {
     const brandSpans = $$('.ab-brand__line span');
     const win = $('.ab-brand__window');
     const shape = $('.ab-brand__shape');
-    const top = $('.ab-brand__top');
     const bCard = $('.ab-dark__building');
     const dark = $('.ab-dark');
     const pinEl = $('.ab-epi__pin');
@@ -227,12 +225,7 @@ export function createAbout(root) {
         duration: 0.45, stagger: 0.05, ease: 'power3.inOut',
       }, 0.05)
       .to(brandSpans, { yPercent: 0, opacity: 1, duration: 0.25, stagger: 0.05, ease: 'expo.out' }, 0.5)
-      .fromTo(win, { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, ease: 'expo.out', transformOrigin: '50% 60%' }, 0.55)
-      // 튀어나온 건물도 창과 같은 기준점에서 함께 커짐
-      .fromTo(top, { scale: 0.4, opacity: 0 }, {
-        scale: 1, opacity: 1, duration: 0.25, ease: 'expo.out',
-        transformOrigin: `${((394 + 322.5 - 565.62) / 440.2) * 100}% ${((305 + 123.6 - 138) / 347.76) * 100}%`,
-      }, 0.55);
+      .fromTo(win, { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, ease: 'expo.out', transformOrigin: '50% 60%' }, 0.55);
     pinTl.to({}, { duration: 0.8 / SPLIT - pinTl.duration() });   // 타임라인 길이를 앞 70%에 맞춤
 
     /*
@@ -252,7 +245,8 @@ export function createAbout(root) {
     const expoOut = gsap.parseEase('expo.out');
 
     const brandLines = $$('.ab-brand__line');
-    const topWrap = $('.ab-brand__topwrap');
+    // 창 위로 튀어나온 건물 영역 (Figma 7:89의 보이는 범위) — 같은 누끼 한 장에 마스크로 열어 줌
+    const POP = { x: 565.62, y: 138, w: 440.2, h: 347.76 };
 
     function renderTravel(self) {
       const pinST = pinTl.scrollTrigger;
@@ -281,7 +275,7 @@ export function createAbout(root) {
       const ss = 1 + (SHAPE_END.scale - 1) * eA;
       const sdx = SHAPE_END.dx * A * eA, sdy = SHAPE_END.dy * A * eA;
       gsap.set(shape, { scale: ss, x: sdx, y: sdy, transformOrigin: '50% 50%' });
-      gsap.set([...brandLines, topWrap], { opacity: 1 - smooth(0, 0.35, pA) });
+      gsap.set(brandLines, { opacity: 1 - smooth(0, 0.35, pA) });
       gsap.set(bands, { opacity: 1 - smooth(0.82, 0.95, pA) });
       // 다음 섹션은 미리 올라와 있다가 심볼이 화면을 다 덮을 때 나타남
       gsap.set(dark, { opacity: smooth(0.86, 1, pA) });
@@ -325,9 +319,16 @@ export function createAbout(root) {
         // 현재 누끼 변환 기준으로 마스크 좌표 계산 (비행 초반 회전은 무시할 만큼 작음)
         const cs = s0 + (s1 - s0) * eB;
         const fx = x0 + (x1 - x0) * eB + D.left, fy = y0 + (y1 - y0) * eB + D.top;
-        fly.style.webkitMaskImage = fly.style.maskImage = maskUrl;
-        fly.style.webkitMaskSize = fly.style.maskSize = `${(r1x - r0x) / cs}px ${(r1y - r0y) / cs}px`;
-        fly.style.webkitMaskPosition = fly.style.maskPosition = `${(r0x - fx) / cs}px ${(r0y - fy) / cs}px`;
+        // 튀어나온 영역: 창 등장 스케일만 따라감
+        const wmap = (px, py) => [ox + (px - ox) * winScale, oy + (py - oy) * winScale];
+        const [p0x, p0y] = wmap(POP.x * A, POP.y * A + Ptop);
+        const [p1x, p1y] = wmap((POP.x + POP.w) * A, (POP.y + POP.h) * A + Ptop);
+        const imgs = `${maskUrl}, linear-gradient(#000, #000)`;
+        const sizes = `${(r1x - r0x) / cs}px ${(r1y - r0y) / cs}px, ${(p1x - p0x) / cs}px ${(p1y - p0y) / cs}px`;
+        const poss = `${(r0x - fx) / cs}px ${(r0y - fy) / cs}px, ${(p0x - fx) / cs}px ${(p0y - fy) / cs}px`;
+        fly.style.webkitMaskImage = fly.style.maskImage = imgs;
+        fly.style.webkitMaskSize = fly.style.maskSize = sizes;
+        fly.style.webkitMaskPosition = fly.style.maskPosition = poss;
       } else {
         fly.style.webkitMaskImage = fly.style.maskImage = 'none';
       }
@@ -344,6 +345,40 @@ export function createAbout(root) {
       onLeave: renderTravel,
     });
     renderTravel();
+
+    /*
+     * 단계 스냅: 이 구간에서는 스크롤 한 번에 다음 장면까지 빠르게 이동
+     *  브랜드 화면(70%) → 창 확장(81%) → 다음 섹션 착지(100%)
+     *  위로 스크롤하면 같은 단계를 역순으로
+     */
+    const STAGES = [SPLIT, 0.81, 1];
+    let stepping = false;
+    let cooldown = 0;
+    const easeStep = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const onStep = (l) => {
+      if (!l || stepping || performance.now() < cooldown) return;
+      const dir = l.direction;
+      if (!dir) return;
+      const st = pinTl.scrollTrigger;
+      const ys = STAGES.map((p) => st.start + (st.end - st.start) * p);
+      const y = l.scroll;
+      if (y < ys[0] - 1 || y > ys[ys.length - 1] + 1) return;
+      const target = dir > 0 ? ys.find((v) => v > y + 4) : [...ys].reverse().find((v) => v < y - 4);
+      if (target == null) return;
+      stepping = true;
+      const dist = Math.abs(target - y) / window.innerHeight;
+      l.scrollTo(target, {
+        duration: Math.min(1.3, 0.55 + dist * 0.45),
+        easing: easeStep,
+        lock: true,
+        force: true,
+        onComplete: () => { stepping = false; cooldown = performance.now() + 380; },
+      });
+    };
+    if (lenis) {
+      lenis.on('scroll', onStep);
+      offStep = () => lenis?.off?.('scroll', onStep);
+    }
 
     /* 인트로 영상 박스 확장: About 진입 0.6s 후 (Figma AFTER_TIMEOUT 0.6s)
        맨 위로 되돌아오면 다시 작은 박스 → 0.6s 후 확장 */
@@ -392,6 +427,7 @@ export function createAbout(root) {
     $('.ab-intro').classList.remove('is-open');
     introVideo.pause();
     darkVideo.pause();
+    offStep();
     ctx?.revert();
     ctx = null;
     gsap.ticker.remove(raf);
