@@ -19,7 +19,65 @@ import introVideoUrl from './media/scene-loop.mp4';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ECHO_COLORS = ['#97F9FF', '#0190FF', '#00D4A2', '#97F9FF', '#0190FF', '#00D4A2'];
+// 리빌 시작 색 (단어마다 순환)
+const PASTELS = [[151, 249, 255], [1, 144, 255], [0, 212, 162]];
+
+/* 텍스트 노드를 단어 <span class="w">로 감쌈 (<br>, <strong> 등 구조 유지) */
+function splitWords(el) {
+  const words = [];
+  const walk = (node) => {
+    [...node.childNodes].forEach((n) => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach((part) => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          const w = document.createElement('span');
+          w.className = 'w';
+          w.textContent = part;
+          frag.appendChild(w);
+          words.push(w);
+        });
+        n.replaceWith(frag);
+      } else if (n.nodeType === 1 && n.tagName !== 'BR') {
+        walk(n);
+      }
+    });
+  };
+  walk(el);
+  return words;
+}
+
+const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+
+/* p(0→1)에 따라 단어들이 왼쪽부터 물결처럼 맺힘. 끝 상태에서는 인라인 스타일을 지워 원래 색을 따름 */
+function makeWordRenderer(words, dark, fontSize) {
+  const N = words.length;
+  const WIN = Math.max(3, Math.round(N * 0.35));        // 동시에 변하는 단어 폭
+  const blurMax = Math.min(14, Math.max(5, fontSize * 0.28));
+  const mid = dark ? [176, 168, 178] : [118, 104, 112];  // 중간 회보랏빛
+  const pastelAlpha = dark ? 0.75 : 0.55;
+  return (p) => {
+    const head = p * (N + WIN);
+    for (let i = 0; i < N; i++) {
+      const w = words[i];
+      const t = Math.min(1, Math.max(0, (head - i) / WIN));
+      if (t >= 1) {
+        if (w._done) continue;
+        w.style.color = ''; w.style.filter = ''; w.style.opacity = '';
+        w._done = true;
+        continue;
+      }
+      w._done = false;
+      const base = PASTELS[i % PASTELS.length];
+      let rgb, alpha;
+      if (t < 0.55) { const k = t / 0.55; rgb = mix(base, mid, k); alpha = pastelAlpha + (0.9 - pastelAlpha) * k; }
+      else { const k = (t - 0.55) / 0.45; rgb = mix(mid, dark ? [255, 255, 255] : [0, 0, 0], k); alpha = 0.9 + 0.1 * k; }
+      w.style.color = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha.toFixed(3)})`;
+      w.style.filter = `blur(${(blurMax * Math.pow(1 - t, 1.3)).toFixed(2)}px)`;
+    }
+  };
+}
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function createAbout(root) {
@@ -44,26 +102,12 @@ export function createAbout(root) {
   const darkVideo = $('.ab-dark__video video');
   darkVideo.src = introVideoUrl;
 
-  /* ---------- 타이틀 잔상 레이어 생성 ---------- */
-  $$('.echo').forEach((el) => {
-    const html = el.innerHTML;
-    el.innerHTML = '';
-    ECHO_COLORS.forEach((c) => {
-      const l = document.createElement('span');
-      l.className = 'echo__layer';
-      l.setAttribute('aria-hidden', 'true');
-      l.style.color = c;
-      l.innerHTML = html;
-      el.appendChild(l);
-    });
-    const main = document.createElement('span');
-    main.className = 'echo__main';
-    main.innerHTML = html;
-    el.appendChild(main);
-  });
+  /* ---------- 텍스트를 단어 단위로 분리 (Butter식 블러 리빌) ---------- */
+  const wordTargets = $$('.ab-title, .ab-epi__title, .ab-body');
+  const wordSets = wordTargets.map((el) => ({ el, words: splitWords(el) }));
 
-  // 일반 페이드업 대상
-  $$('.ab-label, .ab-body, .ab-card, .ab-two__esg').forEach((el) => {
+  // 일반 페이드업 대상 (라벨·이미지)
+  $$('.ab-label, .ab-card, .ab-two__esg').forEach((el) => {
     if (!el.closest('.ab-color, .ab-epi')) el.setAttribute('data-reveal', '');
   });
 
@@ -71,60 +115,41 @@ export function createAbout(root) {
   let lenis;
   let openTimer;
 
-  /* ---------- 등장 모션: Butter식 컬러 잔상 ---------- */
-  function echoIn(el, delay = 0) {
-    const main = el.querySelector('.echo__main');
-    const layers = [...el.querySelectorAll('.echo__layer')];
-    const fs = parseFloat(getComputedStyle(el).fontSize) || 40;
-    const tl = gsap.timeline({ delay });
-    tl.fromTo(layers,
-      { opacity: 0, y: fs * 1.1, filter: 'blur(14px)' },
-      {
-        opacity: (i) => 0.9 - i * 0.08,
-        y: (i) => fs * 0.07 * (i + 1),
-        filter: (i) => `blur(${2 + i * 1.6}px)`,
-        duration: 0.75, stagger: 0.045, ease: 'power3.out',
-      }, 0)
-      .fromTo(main,
-        { opacity: 0, y: fs * 0.7 },
-        { opacity: 1, y: 0, duration: 0.95, ease: 'expo.out' }, 0.18)
-      .to(layers,
-        { opacity: 0, y: 0, filter: 'blur(0px)', duration: 0.8, stagger: { each: 0.04, from: 'end' }, ease: 'power2.inOut' }, 0.85);
-    return tl;
-  }
-
-  function onEnter(el, fn, start = 'top 82%') {
-    ScrollTrigger.create({ trigger: el, start, once: true, onEnter: () => fn(el) });
-  }
-
   function build() {
     const H = () => $('.ab-color__pin').offsetHeight;
     const W = () => root.clientWidth;
     const a = (n) => (n * W()) / 1440;
 
-    /* 타이틀 */
-    $$('.echo').forEach((el) => {
-      gsap.set(el.querySelector('.echo__main'), { opacity: 0 });
-      onEnter(el, (t) => echoIn(t));
+    /* 텍스트: 스크롤에 따라 단어가 컬러 블러 → 회색 블러 → 선명한 본문색 (되감기 가능) */
+    wordSets.forEach(({ el, words }) => {
+      const dark = !!el.closest('.ab-epi, .ab-dark');
+      const render = makeWordRenderer(words, dark, parseFloat(getComputedStyle(el).fontSize) || 18);
+      const proxy = { p: 0 };
+      render(0);
+      gsap.to(proxy, {
+        p: 1,
+        ease: 'none',
+        onUpdate: () => render(proxy.p),
+        scrollTrigger: { trigger: el, start: 'top 95%', end: 'top 35%', scrub: 0.6 },
+      });
     });
 
-    /* 일반 페이드업 */
+    /* 라벨·이미지: 들어올 때 페이드업, 위로 되돌아가면 다시 숨김 */
     $$('[data-reveal]').forEach((el) => {
-      onEnter(el, (t) => gsap.fromTo(t,
+      gsap.fromTo(el,
         { opacity: 0, y: 40 },
-        { opacity: (t.classList.contains('ab-label') ? 0.5 : 1), y: 0, duration: 1.1, ease: 'expo.out' }));
+        {
+          opacity: el.classList.contains('ab-label') ? 0.5 : 1, y: 0, duration: 1.1, ease: 'expo.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none reverse' },
+        });
     });
 
-    /* 매니페스토: 줄별로 올라오고 하이라이트가 왼쪽부터 칠해짐 */
+    /* 매니페스토: 스크롤에 맞춰 줄별로 올라오고 하이라이트가 왼쪽부터 칠해짐 */
     const lines = $$('.ab-manifesto__art .ln');
     const hls = $$('.ab-manifesto__art .hl');
-    gsap.set(lines, { opacity: 0, y: 30 });
-    gsap.set(hls, { scaleX: 0 });
-    onEnter($('.ab-manifesto'), () => {
-      gsap.timeline()
-        .to(lines, { opacity: 1, y: 0, duration: 1, stagger: 0.14, ease: 'expo.out' })
-        .to(hls, { scaleX: 1, duration: 0.9, stagger: 0.1, ease: 'expo.inOut' }, 0.35);
-    }, 'top 75%');
+    gsap.timeline({ scrollTrigger: { trigger: '.ab-manifesto', start: 'top 85%', end: 'center 45%', scrub: 0.6 } })
+      .fromTo(lines, { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: 0.18, duration: 0.5, ease: 'power2.out' })
+      .fromTo(hls, { scaleX: 0 }, { scaleX: 1, stagger: 0.12, duration: 0.5, ease: 'power2.inOut' }, 0.25);
 
     /* PROLOGUE: 스크롤할수록 로켓만 상승 */
     gsap.fromTo('.ab-prologue__rocket',
@@ -197,9 +222,21 @@ export function createAbout(root) {
       .to(winImg, { opacity: 0, duration: 0.15 }, 1.0)
       .to(win, { scale: 16, duration: 0.45, ease: 'power3.in' }, 1.0);
 
-    /* 인트로 영상 박스 확장: About 진입 0.6s 후 (Figma AFTER_TIMEOUT 0.6s) */
+    /* 인트로 영상 박스 확장: About 진입 0.6s 후 (Figma AFTER_TIMEOUT 0.6s)
+       맨 위로 되돌아오면 다시 작은 박스 → 0.6s 후 확장 */
+    const intro = $('.ab-intro');
     introVideo.play().catch(() => {});
-    openTimer = setTimeout(() => $('.ab-intro').classList.add('is-open'), 600);
+    const openIntro = () => { clearTimeout(openTimer); openTimer = setTimeout(() => intro.classList.add('is-open'), 600); };
+    openIntro();
+    ScrollTrigger.create({
+      trigger: intro, start: 'top top', end: 'bottom top',
+      onLeave: () => clearTimeout(openTimer),
+      onEnterBack: () => {},
+    });
+    ScrollTrigger.create({
+      trigger: intro, start: 'top+=2 top',
+      onLeaveBack: () => { intro.classList.remove('is-open'); openIntro(); },
+    });
 
     /* 다크 섹션 영상은 보일 때만 재생 */
     ScrollTrigger.create({

@@ -84,18 +84,8 @@ html.is-about .stage { display: none; }
 .ab-text .ab-title { margin-top: calc(24 * var(--a)); }
 .ab-text .ab-body  { margin-top: calc(32 * var(--a)); width: calc(411 * var(--a)); }
 
-/* ---------- 타이틀 등장: 컬러 잔상(echo) ---------- */
-.echo { position: relative; }
-.echo__main { position: relative; z-index: 1; display: block; }
-.echo__layer {
-  position: absolute;
-  inset: 0;
-  display: block;
-  pointer-events: none;
-  user-select: none;
-  opacity: 0;
-  will-change: transform, opacity, filter;
-}
+/* ---------- 텍스트 리빌: 단어 단위 ---------- */
+.w { display: inline-block; will-change: filter, color; }
 
 /* ---------- 인트로 ---------- */
 .ab-intro {
@@ -302,6 +292,7 @@ html.is-about .stage { display: none; }
 
 /* ---------- 등장 기본 상태 (JS가 있을 때만 숨김) ---------- */
 .js .about [data-reveal] { opacity: 0; }
+.js .about .ab-manifesto__art .ln { opacity: 0; }
 
 /* =========================================================
  * 모바일
