@@ -15,8 +15,9 @@
 <body>
   <!-- 배경: Figma '04_main 1' 영상 레이어 -->
   <div class="stage" aria-hidden="true">
-    <video class="stage__video stage__video--loop" autoplay muted loop playsinline preload="auto"></video>
-    <video class="stage__video stage__video--enter" muted playsinline preload="auto"></video>
+    <!-- 0–9s 랜딩 1회 재생 → 마지막 씬 루프 -->
+    <video class="stage__video stage__video--landing" muted playsinline preload="auto"></video>
+    <video class="stage__video stage__video--loop" muted loop playsinline preload="auto"></video>
   </div>
 
   <header class="header">
@@ -24,14 +25,14 @@
       <img width="118" height="21" alt="FORTO" />
     </a>
     <nav class="header__nav" aria-label="주요 메뉴">
-      <a href="#home" aria-current="page">Home</a>
+      <a href="#home">Home</a>
       <a href="#about">About</a>
       <a href="#experience">Experience</a>
       <a href="#plus">Plus</a>
     </nav>
   </header>
 
-  <main class="hero" id="home">
+  <main class="view hero" data-view="home">
     <div class="hero__center">
       <h1 class="wordmark" aria-label="FORTO"></h1>
       <p class="tagline">
@@ -40,6 +41,11 @@
     </div>
     <a class="enter" href="#about">ENTER</a>
   </main>
+
+  <!-- About: 디자인 수령 전 임시 화면 -->
+  <section class="view about" data-view="about" hidden>
+    <p class="about__placeholder">About</p>
+  </section>
 
   <script type="module" src="/src/main.js"></script>
 </body>

@@ -47,11 +47,28 @@ a { color: inherit; text-decoration: none; }
   object-fit: cover;
   opacity: 0;
 }
-.stage__video--enter { z-index: 1; }
 
-/* ENTER 이후: 홈 UI를 걷어내고 전환 영상만 남김 */
-body.is-entering .hero,
-body.is-entering .header { pointer-events: none; }
+.stage__video--loop { z-index: 1; }
+
+/* ===== Views (hash 라우팅) ===== */
+.view[hidden] { display: none !important; }
+.about {
+  position: relative;
+  z-index: 5;
+  height: 100svh;
+  display: grid;
+  place-items: center;
+}
+.about__placeholder {
+  margin: 0;
+  font-family: var(--font-display);
+  font-stretch: 120%;
+  font-weight: 600;
+  font-size: calc(48 * var(--u));
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, .5);
+}
+.header__nav a[aria-current="page"] { color: var(--white); }
 
 /* ===== Header (pc_header 1:65) ===== */
 .header {
@@ -77,7 +94,7 @@ body.is-entering .header { pointer-events: none; }
   display: flex;
   gap: 19.5px;                 /* 24px일 때 26px 간격 → 같은 비율 유지 */
   font-family: var(--font-display);
-  font-stretch: 125%;
+  font-stretch: 119%;          /* Figma: wdth 119 */
   font-weight: 600;
   font-size: 18px;
   line-height: 1.5;
@@ -154,12 +171,13 @@ body.is-entering .header { pointer-events: none; }
 }
 .tagline__num {
   font-family: var(--font-num);
+  letter-spacing: 0;
   font-size: calc(21 * var(--u));
   font-weight: 700;
 }
 .tagline__brand {
   font-family: var(--font-display);
-  font-stretch: 100%;
+  font-stretch: 120%;          /* Figma: wdth 120 */
   font-weight: 700;
 }
 
@@ -174,10 +192,13 @@ body.is-entering .header { pointer-events: none; }
   display: grid;
   place-items: center;
   border-radius: calc(23 * var(--u));
+  /* Figma 1:56 — Aktiv Grotesk Ex SemiBold, wdth 120, 22px, 150%, -2% */
+  font-family: var(--font-display);
+  font-stretch: 120%;
   font-weight: 600;
-  font-size: calc(24 * var(--u));
+  font-size: calc(22 * var(--u));
   letter-spacing: -0.02em;
-  line-height: 1;
+  line-height: 1.5;
   color: var(--white);
   background: rgba(255, 255, 255, .06);
   box-shadow:
