@@ -215,6 +215,7 @@ export function createAbout(root) {
 
     // 고정 구간 전체 = 화면 4개 분량. 앞 70%: 띠·타이포 / 뒤 30%: 심볼 창 확장
     const PIN_LEN = 4;
+    dark.style.marginTop = `${-window.innerHeight}px`;
     const SPLIT = 0.7;
     const pinTl = gsap.timeline({
       scrollTrigger: { trigger: pinEl, pin: true, start: 'top top', end: () => `+=${PIN_LEN * 100}%`, scrub: true, invalidateOnRefresh: true },
@@ -242,7 +243,7 @@ export function createAbout(root) {
      */
     const LAND = { s: 1.8467, r: -3.915, tx: -339.834, ty: -10.721, imgW: 629 };
     const CUT = { x: 411.56, y: 129.85, w: 757, h: 589 };     // Figma 7:88 (브랜드 프레임 좌표)
-    const SHAPE_END = { scale: 4.39, dx: -18.5, dy: 214 };      // Figma 7:84 → 7:104
+    const SHAPE_END = { scale: 5.6, dx: -18.5, dy: 214 };       // Figma 7:84 → 7:104 (화면을 확실히 덮도록 조금 더 크게)
     const maskUrl = `url("data:image/svg+xml,${encodeURIComponent(shape.outerHTML.replace('fill="#000"', 'fill="#fff"').replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"'))}")`;
     const clamp01 = (v) => Math.min(1, Math.max(0, v));
     const smooth = (e0, e1, v) => { const t = clamp01((v - e0) / (e1 - e0)); return t * t * (3 - 2 * t); };
@@ -255,12 +256,16 @@ export function createAbout(root) {
 
     function renderTravel(self) {
       const pinST = pinTl.scrollTrigger;
-      const aStart = pinST.start + (pinST.end - pinST.start) * SPLIT;
-      const aEnd = pinST.end;
-      const bEnd = aEnd + window.innerHeight;
+      const len = pinST.end - pinST.start;
+      // A: 창 확장 (고정 구간 70%→90%) / B: 누끼 비행 (85%→100%, 확장 끝과 살짝 겹침)
+      // 다크 섹션은 고정 구간 마지막 화면과 겹치게 올려 두어, 화면이 검어질 때 이미 제목·카드가 함께 보임
+      const aStart = pinST.start + len * SPLIT;
+      const aEnd = pinST.start + len * 0.9;
+      const bStart = pinST.start + len * 0.85;
+      const bEnd = pinST.end;
       const y = self && self.scroll ? self.scroll() : window.scrollY;
       const pA = clamp01((y - aStart) / (aEnd - aStart));
-      const pB = clamp01((y - aEnd) / (bEnd - aEnd));
+      const pB = clamp01((y - bStart) / (bEnd - bStart));
       const A = a(1);
 
       // 고정 구간 기준 위치를 스크롤 값으로 직접 계산 (트리거 실행 순서와 무관하게 정확)
@@ -277,7 +282,9 @@ export function createAbout(root) {
       const sdx = SHAPE_END.dx * A * eA, sdy = SHAPE_END.dy * A * eA;
       gsap.set(shape, { scale: ss, x: sdx, y: sdy, transformOrigin: '50% 50%' });
       gsap.set([...brandLines, topWrap], { opacity: 1 - smooth(0, 0.35, pA) });
-      gsap.set(bands, { opacity: 1 - smooth(0.6, 1, pA) });
+      gsap.set(bands, { opacity: 1 - smooth(0.82, 0.95, pA) });
+      // 다음 섹션은 미리 올라와 있다가 심볼이 화면을 다 덮을 때 나타남
+      gsap.set(dark, { opacity: smooth(0.86, 1, pA) });
 
       // 심볼 모양의 화면 위 사각형
       const L = 394 * A, T = 305 * A + Ptop, Wd = 645 * A, Hd = 206 * A;
@@ -291,7 +298,7 @@ export function createAbout(root) {
       const [r1x, r1y] = map(L + Wd, T + Hd);
 
       // 누끼 위치 (다크 섹션 기준 좌표)
-      const D = dark.getBoundingClientRect();
+      const D = root.getBoundingClientRect();     // .ab-fly의 기준 상자 (.about)
       const C = bCard.getBoundingClientRect();
       const k = C.width / LAND.imgW;
       const zoom = winScale * (1 + 0.12 * eA);
@@ -314,11 +321,13 @@ export function createAbout(root) {
       gsap.set(bCard, { opacity: smooth(0.7, 1, pB) });
 
       // 착지 전까지 누끼는 심볼 창 모양으로만 보임
-      if (visible && pB === 0) {
-        const fx = x0 + D.left, fy = y0 + D.top;
+      if (visible && pA < 1) {
+        // 현재 누끼 변환 기준으로 마스크 좌표 계산 (비행 초반 회전은 무시할 만큼 작음)
+        const cs = s0 + (s1 - s0) * eB;
+        const fx = x0 + (x1 - x0) * eB + D.left, fy = y0 + (y1 - y0) * eB + D.top;
         fly.style.webkitMaskImage = fly.style.maskImage = maskUrl;
-        fly.style.webkitMaskSize = fly.style.maskSize = `${(r1x - r0x) / s0}px ${(r1y - r0y) / s0}px`;
-        fly.style.webkitMaskPosition = fly.style.maskPosition = `${(r0x - fx) / s0}px ${(r0y - fy) / s0}px`;
+        fly.style.webkitMaskSize = fly.style.maskSize = `${(r1x - r0x) / cs}px ${(r1y - r0y) / cs}px`;
+        fly.style.webkitMaskPosition = fly.style.maskPosition = `${(r0x - fx) / cs}px ${(r0y - fy) / cs}px`;
       } else {
         fly.style.webkitMaskImage = fly.style.maskImage = 'none';
       }
@@ -327,7 +336,7 @@ export function createAbout(root) {
     ScrollTrigger.create({
       trigger: pinEl,
       start: () => pinTl.scrollTrigger.start - 2,
-      end: () => pinTl.scrollTrigger.end + window.innerHeight + 2,
+      end: () => pinTl.scrollTrigger.end + 2,
       invalidateOnRefresh: true,
       onUpdate: renderTravel,
       onRefresh: renderTravel,

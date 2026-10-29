@@ -297,7 +297,7 @@ html.is-about .stage { display: none; }
   max-width: none;
   transform-origin: 0 0;
   pointer-events: none;
-  z-index: 4;
+  z-index: 3;
   visibility: hidden;
   will-change: transform, opacity;
   -webkit-mask-repeat: no-repeat;
@@ -306,6 +306,7 @@ html.is-about .stage { display: none; }
 
 /* ---------- 다크 섹션 ---------- */
 .ab-dark {
+  z-index: 2;                  /* 고정된 브랜드 화면 위로 올라옴 */
   height: calc(1268 * var(--a));
   background: #000;
   color: #fff;
