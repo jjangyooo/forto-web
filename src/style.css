@@ -75,13 +75,13 @@ body.is-entering .header { pointer-events: none; }
 
 .header__nav {
   display: flex;
-  gap: 26px;
+  gap: 19.5px;                 /* 24px일 때 26px 간격 → 같은 비율 유지 */
   font-family: var(--font-display);
   font-stretch: 125%;
   font-weight: 600;
-  font-size: 24px;
+  font-size: 18px;
   line-height: 1.5;
-  letter-spacing: -0.4815px;
+  letter-spacing: -0.02em;
   color: var(--gray-500);
 }
 .header__nav a {
