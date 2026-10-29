@@ -3,6 +3,7 @@ import './fonts.css';
 import './style.css';
 import { buildWordmark } from './wordmark.js';
 import { createAbout } from './about.js';
+import { createGlass } from './glass.js';
 import logoUrl from './assets/forto-logo.svg';
 import landingUrl from './media/landing.mp4';
 import loopUrl from './media/scene-loop.mp4';
@@ -23,6 +24,25 @@ const about = createAbout(aboutEl);
 
 landingVideo.src = landingUrl;
 loopVideo.src = loopUrl;
+
+/* 유리 효과: WebGL 가능하면 셰이더로, 아니면 기존 CSS 버전 유지 */
+try {
+  const glass = createGlass({
+    canvas: document.querySelector('.glass-canvas'),
+    wordmark: document.querySelector('.wordmark'),
+    glyphs: [...glyphs],
+    enter,
+    videos: [landingVideo, loopVideo],
+    isActive: () => !home.hidden,
+  });
+  if (glass) {
+    document.documentElement.classList.add('gl-glass');
+    glass.onFail(() => document.documentElement.classList.remove('gl-glass'));
+    window.addEventListener('hashchange', () => setTimeout(glass.rebuild, 50));
+  }
+} catch (e) {
+  console.warn('[glass]', e);
+}
 
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
