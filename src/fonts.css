@@ -1,0 +1,21 @@
+/* ===== Web fonts =====
+ * Aktiv Grotesk VF  — wght 100–900, wdth 75–125 (ital 축은 제거, 라틴 서브셋)
+ *   Ex SemiBold = wght 600 / wdth 125   (메뉴)
+ *   Bold        = wght 700 / wdth 100   (카피 속 FORTO)
+ * NG Monopol        — Thin / Light / Regular / SemiBold / Bold (이후 페이지용)
+ * Polymath          — Adobe Fonts 웹 프로젝트 키트로 로드 (index.html의 typekit 링크)
+ */
+@font-face {
+  font-family: 'Aktiv Grotesk';
+  src: url('./fonts/AktivGroteskVF.woff2') format('woff2-variations'),
+       url('./fonts/AktivGroteskVF.woff2') format('woff2');
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face { font-family: 'NG Monopol'; src: url('./fonts/NGMonopol-Thin.woff2') format('woff2'); font-weight: 100; font-display: swap; }
+@font-face { font-family: 'NG Monopol'; src: url('./fonts/NGMonopol-Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'NG Monopol'; src: url('./fonts/NGMonopol-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'NG Monopol'; src: url('./fonts/NGMonopol-SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'NG Monopol'; src: url('./fonts/NGMonopol-Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FORTO</title>
+  <script>document.documentElement.classList.add("js")</script>
+  <meta name="description" content="2048년, FORTO가 여는 새로운 우주여행을 만나보세요." />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <!-- Polymath (Adobe Fonts 웹 프로젝트) -->
+  <link rel="preconnect" href="https://use.typekit.net" crossorigin />
+  <link rel="stylesheet" href="https://use.typekit.net/pfl5yzp.css" />
+</head>
+<body>
+  <!-- 배경: Figma '04_main 1' 영상 레이어 -->
+  <div class="stage" aria-hidden="true">
+    <video class="stage__video stage__video--loop" autoplay muted loop playsinline preload="auto"></video>
+    <video class="stage__video stage__video--enter" muted playsinline preload="auto"></video>
+  </div>
+
+  <header class="header">
+    <a class="header__logo" href="/" aria-label="FORTO 홈">
+      <img width="118" height="21" alt="FORTO" />
+    </a>
+    <nav class="header__nav" aria-label="주요 메뉴">
+      <a href="#home" aria-current="page">Home</a>
+      <a href="#about">About</a>
+      <a href="#experience">Experience</a>
+      <a href="#plus">Plus</a>
+    </nav>
+  </header>
+
+  <main class="hero" id="home">
+    <div class="hero__center">
+      <h1 class="wordmark" aria-label="FORTO"></h1>
+      <p class="tagline">
+        <span class="tagline__num">2048</span>년, <span class="tagline__brand">FORTO</span>가 여는 새로운 우주여행을 만나보세요.
+      </p>
+    </div>
+    <a class="enter" href="#about">ENTER</a>
+  </main>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

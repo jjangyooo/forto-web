@@ -1,0 +1,215 @@
+/* ===== Tokens (Figma: landing+home) ===== */
+:root {
+  --bg: #000;
+  --white: #fff;
+  --gray-500: #aeb1b6;          /* gray/gray_500 */
+
+  --font-kr: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: 'Aktiv Grotesk', 'Archivo', var(--font-kr);
+  --font-num: 'polymath', 'Polymath', 'Aktiv Grotesk', var(--font-kr);
+  --font-mono-display: 'NG Monopol', 'Aktiv Grotesk', var(--font-kr);
+
+  /* 1440×900 아트보드 기준 1px 단위. 화면에 맞춰 비율 유지 */
+  --u: max(var(--u-min, 0px), min(calc(100vw / 1440), calc(100svh / 900)));
+
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--font-kr);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;            /* 랜딩은 단일 화면 */
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ===== Background stage ===== */
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: var(--bg);
+  overflow: hidden;
+}
+.stage__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+.stage__video--enter { z-index: 1; }
+
+/* ENTER 이후: 홈 UI를 걷어내고 전환 영상만 남김 */
+body.is-entering .hero,
+body.is-entering .header { pointer-events: none; }
+
+/* ===== Header (pc_header 1:65) ===== */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 79px 0 80px;
+}
+.header__logo {
+  display: block;
+  mix-blend-mode: difference;
+  line-height: 0;
+}
+.header__logo img { width: 118px; height: auto; }
+
+.header__nav {
+  display: flex;
+  gap: 26px;
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.5;
+  letter-spacing: -0.4815px;
+  color: var(--gray-500);
+}
+.header__nav a {
+  transition: color .35s var(--ease-out);
+}
+.header__nav a:hover,
+.header__nav a:focus-visible,
+.header__nav a[aria-current="page"]:hover { color: var(--white); }
+
+/* ===== Hero ===== */
+.hero {
+  position: relative;
+  z-index: 5;
+  height: 100svh;
+}
+.hero__center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(595 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(37 * var(--u));
+}
+
+/* Wordmark (1:58) — 595 × 102.74 */
+.wordmark {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 595 / 102.7429;
+}
+.glyph {
+  position: absolute;
+  display: block;
+  /* 주의: 여기에 filter/opacity<1을 남기면 backdrop-filter가 끊김 */
+}
+.glyph__glass,
+.glyph__edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.glyph__glass {
+  display: block;
+  /* Figma GLASS: fill white 5%, 뒤 빛을 밝게 굴절시켜 통과 */
+  background: rgba(255, 255, 255, .05);
+  -webkit-backdrop-filter: blur(calc(2.5 * var(--u))) brightness(1.3) saturate(1.1);
+  backdrop-filter: blur(calc(2.5 * var(--u))) brightness(1.3) saturate(1.1);
+}
+.glyph__edge {
+  overflow: visible;
+  filter: drop-shadow(0 calc(.76 * var(--u)) calc(5.7 * var(--u)) rgba(0, 0, 0, .15));
+}
+
+/* Tagline (1:64) */
+.tagline {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  font-size: calc(20 * var(--u));
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, .8);
+  white-space: nowrap;
+}
+.tagline__num {
+  font-family: var(--font-num);
+  font-size: calc(21 * var(--u));
+  font-weight: 700;
+}
+.tagline__brand {
+  font-family: var(--font-display);
+  font-stretch: 100%;
+  font-weight: 700;
+}
+
+/* ENTER (1:55) — 143 × 55, top 573 / 900 */
+.enter {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 123 * var(--u));
+  width: calc(143 * var(--u));
+  height: calc(55 * var(--u));
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  border-radius: calc(23 * var(--u));
+  font-weight: 600;
+  font-size: calc(24 * var(--u));
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--white);
+  background: rgba(255, 255, 255, .06);
+  box-shadow:
+    0 calc(1.27 * var(--u)) calc(15.27 * var(--u)) rgba(0, 0, 0, .05),
+    inset 0 1px 0 rgba(255, 255, 255, .35),
+    inset 0 -1px 0 rgba(255, 255, 255, .08),
+    inset 1px 0 0 rgba(255, 255, 255, .12),
+    inset -1px 0 0 rgba(255, 255, 255, .12);
+  -webkit-backdrop-filter: blur(calc(12 * var(--u))) saturate(1.8) brightness(1.1);
+  backdrop-filter: blur(calc(12 * var(--u))) saturate(1.8) brightness(1.1);
+  transition: background .4s var(--ease-out), box-shadow .4s var(--ease-out);
+}
+.enter:hover,
+.enter:focus-visible {
+  background: rgba(255, 255, 255, .14);
+  outline: none;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  :root { --u-min: calc(100vw / 680); }
+  .header { padding: 0 24px; }
+  .header__nav { gap: 16px; font-size: 15px; }
+  .header__logo img { width: 92px; }
+  .tagline { white-space: normal; }
+}
+@media (max-width: 560px) {
+  .header__nav { display: none; }
+}
+
+/* 초기 상태(JS 로드 전 깜빡임 방지) */
+.js .header,
+.js .glyph,
+.js .tagline,
+.js .enter { visibility: hidden; }
