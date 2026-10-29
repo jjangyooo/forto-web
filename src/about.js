@@ -164,7 +164,7 @@ export function createAbout(root) {
       const render = () => {
         const dx = startDx * (1 - st.p);
         right.setAttribute('transform', `translate(${dx.toFixed(2)} 0)`);
-        const edge = rx + dx + bw * 0.55;                // 띠는 오른쪽 번개 가운데까지 열림
+        const edge = rx + dx + bw + 2;                   // 띠는 오른쪽 번개 끝까지 열림
         rect.setAttribute('width', Math.max(0, edge - (bx0 - 2)).toFixed(2));
       };
       render();
