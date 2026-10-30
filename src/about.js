@@ -146,14 +146,23 @@ export function createAbout(root) {
       const render = makeWordRenderer(words, dark, parseFloat(getComputedStyle(el).fontSize) || 18);
       const proxy = { p: 0 };
       render(0);
+      if (el.closest('.ab-dark')) {
+        // SYSTEM 1은 브랜드 전환이 끝나는 순간 화면에 한꺼번에 나타나므로,
+        // 착지하면 자동으로 맺히고(1.4초) 그 전으로 되돌아가면 다시 흐려짐
+        const tl = gsap.timeline({ paused: true })
+          .to(proxy, { p: 1, duration: 1.4, ease: 'power1.out', onUpdate: () => render(proxy.p) });
+        ScrollTrigger.create({
+          trigger: '.ab-dark', start: 'top 35%',
+          onEnter: () => tl.timeScale(1).play(),
+          onLeaveBack: () => tl.timeScale(2).reverse(),
+        });
+        return;
+      }
       gsap.to(proxy, {
         p: 1,
         ease: 'none',
         onUpdate: () => render(proxy.p),
-        // SYSTEM 1은 고정 구간이 끝날 때 화면에 한꺼번에 나타나므로, 그 뒤 스크롤에 맞춰 맺힘
-        scrollTrigger: el.closest('.ab-dark')
-          ? { trigger: '.ab-dark', start: 'top 2%', end: '+=28%', scrub: 0.6 }
-          : { trigger: el, start: 'top 95%', end: 'top 35%', scrub: 0.6 },
+        scrollTrigger: { trigger: el, start: 'top 95%', end: 'top 35%', scrub: 0.6 },
       });
     });
 
