@@ -1,0 +1,81 @@
+/* =========================================================
+ * Experience — 1440×810 프레임을 화면에 cover로 맞추고
+ * 영상·심볼 마스크·텍스트를 모두 같은 좌표계(--x 단위)에 배치
+ * ========================================================= */
+html.is-exp,
+html.is-exp body { overflow: hidden; height: 100%; }
+html.is-exp .stage,
+html.is-exp .glass-canvas { display: none; }
+
+.xp {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  background: #000;
+  overflow: hidden;
+  touch-action: none;
+}
+.xp-frame {
+  --fw: max(100vw, calc(100svh * 1440 / 810));
+  --x: calc(var(--fw) / 1440);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--fw);
+  height: calc(var(--fw) * 810 / 1440);
+  transform: translate(-50%, -50%);
+}
+.xp-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  will-change: transform;
+}
+.xp-layer video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.xp-mask {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* 텍스트: Aktiv Grotesk SemiBold wdth 120, 18px, -1% (16:1129, 16:1143) */
+.xp-title,
+.xp-sub {
+  position: absolute;
+  z-index: 4;
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-display);
+  font-stretch: 120%;
+  font-weight: 600;
+  font-size: calc(18 * var(--x));
+  line-height: calc(25 * var(--x));
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  will-change: transform, opacity, filter;
+}
+/* 제목은 심볼의 가로 홈 바로 아래, 오른쪽 끝을 x=405에 맞춤 */
+.xp-title {
+  right: calc((1440 - 405) * var(--x));
+  top: calc(404 * var(--x));
+}
+/* 오른쪽 아래 대각선을 따라 55.2° 회전 */
+.xp-sub {
+  left: calc(1261 * var(--x));
+  top: calc(671 * var(--x));
+  transform-origin: 0 0;
+  rotate: -55.235deg;
+}
+
+@media (max-width: 700px) {
+  .xp-title, .xp-sub { font-size: 13px; line-height: 18px; }
+}

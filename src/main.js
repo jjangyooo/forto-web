@@ -3,6 +3,7 @@ import './fonts.css';
 import './style.css';
 import { buildWordmark } from './wordmark.js';
 import { createAbout } from './about.js';
+import { createExperience } from './experience.js';
 import { createGlass } from './glass.js';
 import logoUrl from './assets/forto-logo.svg';
 import landingUrl from './media/landing.mp4';
@@ -111,7 +112,9 @@ function unit() {
 }
 
 /* ---------- 라우팅: #home / #about ---------- */
-const VIEWS = { home, about: aboutEl };
+const expEl = document.querySelector('[data-view="experience"]');
+const experience = createExperience(expEl);
+const VIEWS = { home, about: aboutEl, experience: expEl };
 let current = 'home';
 
 function viewFromHash() {
@@ -127,6 +130,11 @@ function setNav(key) {
 }
 
 function showView(key) {
+  if (key === 'experience') {
+    document.documentElement.classList.add('is-exp');
+    loopVideo.pause();
+    experience.enter();
+  }
   if (key === 'about') {
     document.documentElement.classList.add('is-about');
     about.enter();
@@ -134,6 +142,11 @@ function showView(key) {
 }
 
 function hideView(key) {
+  if (key === 'experience') {
+    experience.leave();
+    document.documentElement.classList.remove('is-exp');
+    loopVideo.play().catch(() => {});
+  }
   if (key === 'about') {
     about.leave();
     document.documentElement.classList.remove('is-about');
