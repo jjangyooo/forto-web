@@ -150,7 +150,10 @@ export function createAbout(root) {
         p: 1,
         ease: 'none',
         onUpdate: () => render(proxy.p),
-        scrollTrigger: { trigger: el, start: 'top 95%', end: 'top 35%', scrub: 0.6 },
+        // SYSTEM 1은 고정 구간이 끝날 때 화면에 한꺼번에 나타나므로, 그 뒤 스크롤에 맞춰 맺힘
+        scrollTrigger: el.closest('.ab-dark')
+          ? { trigger: '.ab-dark', start: 'top 2%', end: '+=28%', scrub: 0.6 }
+          : { trigger: el, start: 'top 95%', end: 'top 35%', scrub: 0.6 },
       });
     });
 
@@ -441,6 +444,9 @@ export function createAbout(root) {
       trigger: intro, start: 'top+=2 top',
       onLeaveBack: () => { intro.classList.remove('is-open'); openIntro(); },
     });
+
+    // 고정(pin) 구간 뒤에 있는 요소들의 시작 위치가 pin 길이를 반영하도록, 위치 순으로 정렬해 다시 계산
+    ScrollTrigger.sort();
 
     /* 푸터: 화면에 절반쯤 들어오면 오브제 모션 재생, 위로 벗어나면 되감기 */
     const fp = { p: 0 };
