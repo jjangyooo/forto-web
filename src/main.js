@@ -6,8 +6,7 @@ import { createAbout } from './about.js';
 import { createExperience } from './experience.js';
 import { createGlass } from './glass.js';
 import logoUrl from './assets/forto-logo.svg';
-import landingUrl from './media/landing.mp4';
-import loopUrl from './media/scene-loop.mp4';
+import homeUrl from './media/home.mp4';
 
 document.querySelector('.header__logo img').src = logoUrl;
 
@@ -23,8 +22,10 @@ const enter = document.querySelector('.enter');
 const homeUI = [...glyphs, tagline, enter];
 const about = createAbout(aboutEl);
 
-landingVideo.src = landingUrl;
-loopVideo.src = loopUrl;
+// 홈 영상: 0초 심볼 등장 → 6.6초 마지막 씬 → 10초부터 빛이 은은하게 커졌다 작아짐(약 6.5초) → 처음부터 반복
+landingVideo.src = homeUrl;
+landingVideo.loop = true;
+loopVideo.src = homeUrl;
 
 /* 유리 효과: WebGL 가능하면 셰이더로, 아니면 기존 CSS 버전 유지 */
 try {
@@ -53,9 +54,10 @@ const UI_CUE = 6.9;
 let uiShown = false;
 let introDone = false;
 
-/* ---------- 배경 영상: 랜딩(0–9s) 1회 → 마지막 씬 루프 ---------- */
+/* ---------- 배경 영상 ---------- */
+// 인트로를 건너뛸 때(자동재생 차단·모션 줄이기·바로 다른 탭 진입)는 완성된 장면(10초)부터 재생
 function startLoop() {
-  loopVideo.currentTime = 0;
+  loopVideo.currentTime = 10;
   loopVideo.play().catch(() => {});
   gsap.set(loopVideo, { autoAlpha: 1 });
   gsap.set(landingVideo, { autoAlpha: 0 });
@@ -70,7 +72,6 @@ function playLanding() {
   watchCue();
 }
 
-landingVideo.addEventListener('ended', startLoop);
 
 // 영상 시간을 기준으로 UI 등장 타이밍을 맞춤 (영상이 늦게 로드돼도 싱크 유지)
 function watchCue() {
