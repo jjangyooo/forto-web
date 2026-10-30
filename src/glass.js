@@ -170,6 +170,7 @@ export function createGlass({ canvas, wordmark, glyphs, enter, videos, isActive 
 
   /* ---------- SDF 생성 (리사이즈 때만) ---------- */
   function build() {
+    if (!enter.offsetParent) return;          // 홈이 숨겨져 있으면 홈으로 돌아올 때 다시 계산
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     const W = window.innerWidth, H = window.innerHeight;
     canvas.width = Math.round(W * dpr);

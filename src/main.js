@@ -39,7 +39,7 @@ try {
   if (glass) {
     document.documentElement.classList.add('gl-glass');
     glass.onFail(() => document.documentElement.classList.remove('gl-glass'));
-    window.addEventListener('hashchange', () => setTimeout(glass.rebuild, 50));
+    window.addEventListener('hashchange', () => setTimeout(glass.rebuild, 900));   // 화면 전환(0.6s)이 끝난 뒤 다시 계산
   }
 } catch (e) {
   console.warn('[glass]', e);

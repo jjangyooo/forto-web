@@ -159,3 +159,14 @@ html.is-exp .glass-canvas { display: none; }
   .xp-title, .xp-sub { font-size: 13px; line-height: 18px; }
   .xp-hint { left: 20px; bottom: 28px; }
 }
+
+/* 푸터 패널: 마지막 프로젝트 다음에 아래에서 올라옴 */
+.xp-footer.ft {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  aspect-ratio: auto;
+  min-height: 0;
+  height: 100%;
+  will-change: transform;
+}

@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { mountFooter } from './footer.js';
 import Lenis from 'lenis';
 import './about.css';
 
@@ -128,6 +129,7 @@ export function createAbout(root) {
     if (!el.closest('.ab-color, .ab-epi') && !el.classList.contains('ab-dark__building')) el.setAttribute('data-reveal', '');
   });
 
+  const footer = mountFooter($('.ab-footer'));
   let ctx;
   let lenis;
   let openTimer;
@@ -440,6 +442,14 @@ export function createAbout(root) {
       onLeaveBack: () => { intro.classList.remove('is-open'); openIntro(); },
     });
 
+    /* 푸터: 화면에 들어오는 만큼 빛줄기가 수축하며 오브제가 맺힘 (되감기 가능) */
+    footer.set(0);
+    ScrollTrigger.create({
+      trigger: '.ab-footer', start: 'top 85%', end: 'bottom bottom', scrub: 0.6,
+      onUpdate: (st) => footer.set(st.progress),
+      onRefresh: (st) => footer.set(st.progress),
+    });
+
     /* 영상은 화면에 보일 때만 재생 */
     [[darkVideo, '.ab-dark__video'], [moonVideo, '.ab-two__card']].forEach(([v, trig]) => {
       ScrollTrigger.create({
@@ -491,6 +501,7 @@ export function createAbout(root) {
     moonVideo.pause();
     offStep();
     ctx?.revert();
+    footer.set(1);
     ctx = null;
     gsap.ticker.remove(raf);
     lenis?.destroy();

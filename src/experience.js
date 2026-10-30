@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
 import './experience.css';
+import { mountFooter } from './footer.js';
 import jejuVideo from './experience/jeju-terminal.mp4';
 import jejuPoster from './experience/jeju-terminal.jpg';
 import lunarVideo from './experience/rocket-to-lunar.mp4';
@@ -50,6 +51,9 @@ export function createExperience(root) {
   const titleEl = $('.xp-title');
   const subEl = $('.xp-sub');
   const hint = root.querySelector('.xp-hint');
+  const footerEl = root.querySelector('.xp-footer');
+  const footer = mountFooter(footerEl);
+  const fp = { p: 0 };
   let hintTimer;
   let navigated = false;
   const hideHint = () => { clearTimeout(hintTimer); hint.classList.remove('is-on'); };
@@ -87,10 +91,28 @@ export function createExperience(root) {
   function go(dir) {
     if (busy || !active) return;
     const next = index + dir;
-    if (next < 0 || next >= PROJECTS.length) return;
+    if (next < 0 || next > PROJECTS.length) return;
     busy = true;
     navigated = true;
     hideHint();
+
+    // 마지막 프로젝트 다음 = 푸터
+    if (next === PROJECTS.length || index === PROJECTS.length) {
+      const toFooter = next === PROJECTS.length;
+      const curV = layers[front].querySelector('video');
+      if (toFooter) curV.pause();
+      gsap.timeline({
+        onComplete: () => {
+          index = next;
+          if (!toFooter) curV.play().catch(() => {});
+          busy = false;
+        },
+      })
+        .to(footerEl, { yPercent: toFooter ? 0 : 100, duration: 1, ease: 'expo.inOut' }, 0)
+        .to(layers[front], { yPercent: toFooter ? -12 : 0, duration: 1, ease: 'expo.inOut' }, 0)
+        .to(fp, { p: toFooter ? 1 : 0, duration: toFooter ? 1.8 : 0.8, ease: toFooter ? 'power1.out' : 'power2.in', onUpdate: () => footer.set(fp.p) }, toFooter ? 0.3 : 0);
+      return;
+    }
 
     const cur = layers[front];
     const nxt = layers[1 - front];
@@ -158,6 +180,8 @@ export function createExperience(root) {
     setText(PROJECTS[0]);
     gsap.set(layers, { yPercent: 0, scale: 1, zIndex: 0 });
     gsap.set(layers[0], { zIndex: 1 });
+    gsap.set(footerEl, { yPercent: 100 });
+    fp.p = 0; footer.set(0);
     load(layers[0], PROJECTS[0], { play: true });
     load(layers[1], PROJECTS[1]);
     window.addEventListener('wheel', onWheel, { passive: false });
@@ -185,7 +209,7 @@ export function createExperience(root) {
     hideHint();
     active = false;
     busy = false;
-    gsap.killTweensOf([shape, ...layers, titleEl, subEl]);
+    gsap.killTweensOf([shape, ...layers, titleEl, subEl, footerEl, fp]);
     layers.forEach((l) => l.querySelector('video').pause());
     window.removeEventListener('wheel', onWheel);
     window.removeEventListener('touchstart', onTouchStart);
