@@ -49,6 +49,10 @@ export function createExperience(root) {
   const maskPath = $('.xp-mask path');
   const titleEl = $('.xp-title');
   const subEl = $('.xp-sub');
+  const hint = root.querySelector('.xp-hint');
+  let hintTimer;
+  let navigated = false;
+  const hideHint = () => { clearTimeout(hintTimer); hint.classList.remove('is-on'); };
   let index = 0;
   let front = 0;            // 지금 보이는 레이어
   let busy = false;
@@ -85,6 +89,8 @@ export function createExperience(root) {
     const next = index + dir;
     if (next < 0 || next >= PROJECTS.length) return;
     busy = true;
+    navigated = true;
+    hideHint();
 
     const cur = layers[front];
     const nxt = layers[1 - front];
@@ -160,6 +166,11 @@ export function createExperience(root) {
     window.addEventListener('touchend', onTouchEnd);
     window.addEventListener('keydown', onKey);
 
+    // 영상 시작 1초 후 스크롤 유도 표시 (사용자가 넘기면 사라짐)
+    navigated = false;
+    hideHint();
+    hintTimer = setTimeout(() => { if (active && !navigated) hint.classList.add('is-on'); }, 1000);
+
     if (!reduce) {
       // 진입: 좁은 창에서 시작해 열리며 제목 등장
       shape.t = 1; setMask();
@@ -171,6 +182,7 @@ export function createExperience(root) {
   }
 
   function leave() {
+    hideHint();
     active = false;
     busy = false;
     gsap.killTweensOf([shape, ...layers, titleEl, subEl]);

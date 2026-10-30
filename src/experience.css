@@ -76,6 +76,86 @@ html.is-exp .glass-canvas { display: none; }
   rotate: -55.235deg;
 }
 
+/* ---------- 스크롤 유도 ---------- */
+.xp-hint {
+  position: absolute;
+  left: 48px;
+  bottom: 40px;
+  z-index: 6;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  color: #fff;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, .45));
+  transition: opacity .5s ease, transform .5s ease, visibility 0s linear .5s;
+}
+.xp-hint.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity .7s ease, transform .9s var(--ease-out), visibility 0s;
+}
+.xp-hint__gesture {
+  position: relative;
+  width: 28px;
+  height: 48px;
+  flex: none;
+}
+/* 손가락이 화면을 쓸어 올리는 동작 */
+.xp-hint__hand {
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 28px;
+  height: 28px;
+  animation: xp-swipe 1.9s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+/* 손끝이 지나간 자리에 남는 선 */
+.xp-hint__trail {
+  position: absolute;
+  left: 8.6px;
+  top: 8px;
+  width: 1.5px;
+  height: 22px;
+  border-radius: 1px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0), #fff);
+  transform-origin: 50% 100%;
+  animation: xp-trail 1.9s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+.xp-hint__label {
+  font-family: var(--font-display);
+  font-stretch: 120%;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  padding-bottom: 6px;
+  white-space: nowrap;
+  opacity: .85;
+}
+@keyframes xp-swipe {
+  0%   { transform: translateY(12px); opacity: 0; }
+  15%  { transform: translateY(12px); opacity: 1; }
+  62%  { transform: translateY(-10px); opacity: 1; }
+  82%  { transform: translateY(-10px); opacity: 0; }
+  100% { transform: translateY(-10px); opacity: 0; }
+}
+@keyframes xp-trail {
+  0%, 15% { transform: translateY(12px) scaleY(0); opacity: 0; }
+  20%     { opacity: .9; }
+  62%     { transform: translateY(0) scaleY(1); opacity: .9; }
+  82%,100%{ transform: translateY(0) scaleY(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xp-hint__hand, .xp-hint__trail { animation: none; }
+  .xp-hint__trail { display: none; }
+}
+
 @media (max-width: 700px) {
   .xp-title, .xp-sub { font-size: 13px; line-height: 18px; }
+  .xp-hint { left: 20px; bottom: 28px; }
 }
