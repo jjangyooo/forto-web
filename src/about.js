@@ -8,8 +8,16 @@ import prologueBg from './about/prologue-bg.webp';
 import rocketUrl from './about/rocket.webp';
 import compassUrl from './about/compass-rotation.mp4';
 import compassPoster from './about/compass-poster.jpg';
-import esgUrl from './about/esg.png';
-import moonUrl from './about/moon.webp';
+import moonSymbolUrl from './about/moon-symbol.mp4';
+import moonSymbolPoster from './about/moon-symbol-poster.jpg';
+import symbolDrawUrl from './about/symbol-draw.mp4';
+import baseFormUrl from './about/base-form.svg';
+import mixedIconUrl from './about/mixed-icon.svg';
+import mixedUpUrl from './about/mixed-up.svg';
+import n02Url from './about/n02.svg';
+import newAxisUrl from './about/new-axis.svg';
+import rocketIconUrl from './about/rocket-icon.svg';
+import iconGridUrl from './about/icon-grid.svg';
 import colorUrl from './about/color.webp';
 import cutoutUrl from './about/cutout.webp';
 import gridUrl from './about/construction.png';
@@ -91,8 +99,16 @@ export function createAbout(root) {
   const compass = $('.ab-one__video');
   compass.src = compassUrl;
   compass.poster = compassPoster;
-  $('.ab-two__esg').src = esgUrl;
-  $('.ab-two__moon').src = moonUrl;
+  const moonVideo = $('.ab-two__video');
+  moonVideo.src = moonSymbolUrl;
+  moonVideo.poster = moonSymbolPoster;
+  $('.ab-step--1 .ab-step__art').src = baseFormUrl;
+  $('.ab-step__icon').src = mixedIconUrl;
+  $('.ab-step__word').src = mixedUpUrl;
+  $('.ab-step__num').src = n02Url;
+  $('.ab-step--3 .ab-step__art').src = newAxisUrl;
+  $('.ab-sys2__hero img').src = rocketIconUrl;
+  $('.ab-sys2__grid img').src = iconGridUrl;
   $('.ab-color__img').src = colorUrl;
   const fly = $('.ab-fly');
   fly.src = cutoutUrl;
@@ -101,14 +117,14 @@ export function createAbout(root) {
   const introVideo = $('.ab-intro__video');
   introVideo.src = introVideoUrl;
   const darkVideo = $('.ab-dark__video video');
-  darkVideo.src = introVideoUrl;
+  darkVideo.src = symbolDrawUrl;
 
   /* ---------- 텍스트를 단어 단위로 분리 (Butter식 블러 리빌) ---------- */
   const wordTargets = $$('.ab-title, .ab-epi__title, .ab-body');
   const wordSets = wordTargets.map((el) => ({ el, words: splitWords(el) }));
 
   // 일반 페이드업 대상 (라벨·이미지)
-  $$('.ab-label, .ab-card, .ab-two__esg').forEach((el) => {
+  $$('.ab-label, .ab-sys, .ab-card').forEach((el) => {
     if (!el.closest('.ab-color, .ab-epi') && !el.classList.contains('ab-dark__building')) el.setAttribute('data-reveal', '');
   });
 
@@ -124,7 +140,7 @@ export function createAbout(root) {
 
     /* 텍스트: 스크롤에 따라 단어가 컬러 블러 → 회색 블러 → 선명한 본문색 (되감기 가능) */
     wordSets.forEach(({ el, words }) => {
-      const dark = !!el.closest('.ab-epi, .ab-dark');
+      const dark = !!el.closest('.ab-epi, .ab-dark, .ab-sys2');
       const render = makeWordRenderer(words, dark, parseFloat(getComputedStyle(el).fontSize) || 18);
       const proxy = { p: 0 };
       render(0);
@@ -141,7 +157,7 @@ export function createAbout(root) {
       gsap.fromTo(el,
         { opacity: 0, y: 40 },
         {
-          opacity: el.classList.contains('ab-label') ? 0.5 : 1, y: 0, duration: 1.1, ease: 'expo.out',
+          opacity: el.matches('.ab-label, .ab-sys') ? 0.5 : 1, y: 0, duration: 1.1, ease: 'expo.out',
           scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none reverse' },
         });
     });
@@ -424,10 +440,27 @@ export function createAbout(root) {
       onLeaveBack: () => { intro.classList.remove('is-open'); openIntro(); },
     });
 
-    /* 다크 섹션 영상은 보일 때만 재생 */
-    ScrollTrigger.create({
-      trigger: '.ab-dark__video', start: 'top bottom', end: 'bottom top',
-      onToggle: (st) => (st.isActive ? darkVideo.play().catch(() => {}) : darkVideo.pause()),
+    /* 영상은 화면에 보일 때만 재생 */
+    [[darkVideo, '.ab-dark__video'], [moonVideo, '.ab-two__card']].forEach(([v, trig]) => {
+      ScrollTrigger.create({
+        trigger: trig, start: 'top bottom', end: 'bottom top',
+        onToggle: (st) => (st.isActive ? v.play().catch(() => {}) : v.pause()),
+      });
+    });
+
+    /* 03 심볼 3단계 목록: 구분선이 왼쪽부터 그어지고 항목이 차례로 올라옴 (되감기 시 역재생) */
+    gsap.timeline({ scrollTrigger: { trigger: '.ab-steps', start: 'top 85%', toggleActions: 'play none none reverse' } })
+      .fromTo($$('.ab-steps__rule'), { scaleX: 0 }, { scaleX: 1, duration: 0.9, stagger: 0.12, ease: 'expo.out' }, 0)
+      .fromTo($$('.ab-step'), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.12, ease: 'expo.out' }, 0.1);
+
+    /* SYSTEM 2 아이콘: 큰 로켓은 살짝 확대되며, 아이콘 모음은 아래에서 올라옴 */
+    gsap.fromTo('.ab-sys2__hero img', { scale: 0.86, opacity: 0 }, {
+      scale: 1, opacity: 1, duration: 1.1, ease: 'expo.out',
+      scrollTrigger: { trigger: '.ab-sys2__hero', start: 'top 75%', toggleActions: 'play none none reverse' },
+    });
+    gsap.fromTo('.ab-sys2__grid img', { y: 30, opacity: 0 }, {
+      y: 0, opacity: 1, duration: 1.1, ease: 'expo.out', delay: 0.1,
+      scrollTrigger: { trigger: '.ab-sys2__grid', start: 'top 75%', toggleActions: 'play none none reverse' },
     });
   }
 
@@ -455,6 +488,7 @@ export function createAbout(root) {
     $('.ab-intro').classList.remove('is-open');
     introVideo.pause();
     darkVideo.pause();
+    moonVideo.pause();
     offStep();
     ctx?.revert();
     ctx = null;
