@@ -74,13 +74,40 @@ function playLanding() {
 
 
 // 영상 시간을 기준으로 UI 등장 타이밍을 맞춤 (영상이 늦게 로드돼도 싱크 유지)
+// 첫 재생: 6.9초에 헤더+홈 UI 등장 / 이후 루프마다: 끝(15.75초)에서 홈 UI가 사라지고 다음 바퀴 6.9초에 다시 등장
+const UI_OUT = 15.75;
+let loopHidden = false;
+let cueRaf = 0;
 function watchCue() {
+  cancelAnimationFrame(cueRaf);
   const tick = () => {
-    if (uiShown) return;
-    if (landingVideo.currentTime >= UI_CUE) showUI();
-    else requestAnimationFrame(tick);
+    cueRaf = requestAnimationFrame(tick);
+    const v = +gsap.getProperty(landingVideo, 'opacity') > 0.5 ? landingVideo : loopVideo;
+    const t = v.currentTime;
+    if (!uiShown) { if (t >= UI_CUE && t < UI_OUT) showUI(); return; }
+    if (reduce || current !== 'home' || !introDone) return;
+    if (!loopHidden && t >= UI_OUT) hideLoopUI();
+    else if (loopHidden && t >= UI_CUE && t < UI_OUT) showLoopUI();
   };
-  requestAnimationFrame(tick);
+  cueRaf = requestAnimationFrame(tick);
+}
+
+function hideLoopUI() {
+  loopHidden = true;
+  gsap.killTweensOf(homeUI);
+  gsap.to(homeUI, { autoAlpha: 0, y: -12, filter: 'blur(8px)', duration: 0.55, stagger: 0.03, ease: 'power2.in' });
+}
+
+function showLoopUI() {
+  loopHidden = false;
+  gsap.killTweensOf(homeUI);
+  gsap.timeline({ defaults: { ease: 'expo.out' } })
+    .fromTo(glyphs, { autoAlpha: 0, y: 24, scale: 0.96, filter: 'blur(10px)' },
+      { autoAlpha: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 1.4, stagger: 0.09,
+        onComplete: () => gsap.set(glyphs, { clearProps: 'filter,transform' }) }, 0.5)
+    .fromTo(tagline, { autoAlpha: 0, y: 14, filter: 'blur(0px)' }, { autoAlpha: 1, y: 0, duration: 1.1 }, 1.05)
+    .fromTo(enter, { autoAlpha: 0, y: () => 196 * unit(), filter: 'blur(0px)' },
+      { autoAlpha: 1, y: 0, duration: 1.4, ease: 'power4.out', clearProps: 'filter' }, 1.15);
 }
 
 /* ---------- UI 등장: 헤더 → FORTO → 카피 → ENTER ---------- */
@@ -103,7 +130,9 @@ function showUI() {
 function skipIntro() {
   uiShown = true;
   introDone = true;
+  loopHidden = false;
   startLoop();
+  watchCue();
   gsap.set([header, ...homeUI], { autoAlpha: 1, clearProps: 'transform,filter' });
 }
 
@@ -162,6 +191,7 @@ function go(key, { instant = false } = {}) {
   const prev = current;
   current = key;
   setNav(key);
+  if (key === 'home') loopHidden = false;   // 돌아오면 UI는 보이는 상태에서 다시 루프 주기를 따름
 
   // 인트로 도중 이동하면 인트로를 마무리하고 진행
   if (!introDone) skipIntro();
