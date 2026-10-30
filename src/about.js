@@ -24,7 +24,8 @@ import cutoutUrl from './about/cutout.webp';
 import gridUrl from './about/construction.png';
 import buildingUrl from './about/building.webp';
 // 임시: 인트로/다크 섹션 영상 레이어는 원본 수령 전까지 랜딩 마지막 씬 루프로 대체
-import introVideoUrl from './media/scene-loop.mp4';
+import introVideoUrl from './about/about-intro.mp4';
+import introPoster from './about/about-intro.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -117,6 +118,7 @@ export function createAbout(root) {
   $('.ab-dark__building img').src = buildingUrl;
   const introVideo = $('.ab-intro__video');
   introVideo.src = introVideoUrl;
+  introVideo.poster = introPoster;
   const darkVideo = $('.ab-dark__video video');
   darkVideo.src = symbolDrawUrl;
 
@@ -438,21 +440,38 @@ export function createAbout(root) {
       offStep = () => lenis?.off?.('scroll', onStep);
     }
 
-    /* 인트로 영상 박스 확장: About 진입 0.6s 후 (Figma AFTER_TIMEOUT 0.6s)
-       맨 위로 되돌아오면 다시 작은 박스 → 0.6s 후 확장 */
+    /* 인트로 영상: 진입 0.6s 후 박스가 화면 가득 확장 (Figma AFTER_TIMEOUT 0.6s)
+       - 맨 위로 되돌아오면 확장 전 작은 프레임으로 돌아가고, 다시 내리면 확장
+       - 소리와 함께 재생, 화면에서 벗어나면 음소거 → 다시 보이면 소리 복원 */
     const intro = $('.ab-intro');
-    introVideo.play().catch(() => {});
-    const openIntro = () => { clearTimeout(openTimer); openTimer = setTimeout(() => intro.classList.add('is-open'), 600); };
-    openIntro();
-    ScrollTrigger.create({
-      trigger: intro, start: 'top top', end: 'bottom top',
-      onLeave: () => clearTimeout(openTimer),
-      onEnterBack: () => {},
+    let soundBlocked = false;
+    introVideo.currentTime = 0;
+    introVideo.muted = false;
+    introVideo.play().catch(() => {
+      // 브라우저가 소리 있는 자동재생을 막으면 음소거로 재생
+      soundBlocked = true;
+      introVideo.muted = true;
+      introVideo.play().catch(() => {});
     });
+    clearTimeout(openTimer);
+    openTimer = setTimeout(() => intro.classList.add('is-open'), 600);
     ScrollTrigger.create({
       trigger: intro, start: 'top+=2 top',
-      onLeaveBack: () => { intro.classList.remove('is-open'); openIntro(); },
+      onEnter: () => { clearTimeout(openTimer); intro.classList.add('is-open'); },
+      onLeaveBack: () => { clearTimeout(openTimer); intro.classList.remove('is-open'); },
     });
+    ScrollTrigger.create({
+      trigger: intro, start: 'top top', end: 'bottom top',
+      onLeave: () => { introVideo.muted = true; },
+      onEnterBack: () => { introVideo.muted = soundBlocked; },
+    });
+    // 소리가 막혔던 경우, 페이지를 처음 클릭/터치하면 (영상이 보일 때) 소리 켜기
+    const unlock = () => {
+      if (!soundBlocked) return;
+      soundBlocked = false;
+      if (intro.getBoundingClientRect().bottom > 0) introVideo.muted = false;
+    };
+    window.addEventListener('pointerdown', unlock, { once: true });
 
     // 고정(pin) 구간 뒤에 있는 요소들의 시작 위치가 pin 길이를 반영하도록, 위치 순으로 정렬해 다시 계산
     ScrollTrigger.sort();
@@ -514,6 +533,7 @@ export function createAbout(root) {
   function leave() {
     clearTimeout(openTimer);
     $('.ab-intro').classList.remove('is-open');
+    introVideo.muted = true;
     introVideo.pause();
     darkVideo.pause();
     moonVideo.pause();
