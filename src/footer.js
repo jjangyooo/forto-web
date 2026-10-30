@@ -22,18 +22,18 @@ export function mountFooter(el) {
   const texts = el.querySelectorAll('.ft__copy, .ft__rights');
 
   const clamp = (v) => Math.min(1, Math.max(0, v));
-  const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+  const easeOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);   // 처음엔 길게 머물렀다가 수축
   const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 
   function set(p) {
     p = clamp(p);
     const e = easeOut(p);
     // 1) 빛줄기: 오브제 윗면(높이 16.5%)을 기준으로 길게 늘어났다가 수축, 블러가 걷힘
-    beam.style.transform = `scaleY(${(1 + 0.8 * (1 - e)).toFixed(4)})`;
-    beam.style.filter = `blur(${(16 * (1 - e)).toFixed(2)}px) brightness(${(1 + 0.4 * (1 - e)).toFixed(3)}) saturate(${(1 + 0.25 * (1 - e)).toFixed(3)})`;
+    beam.style.transform = `scaleY(${(1 + 1.5 * (1 - e)).toFixed(4)})`;
+    beam.style.filter = `blur(${(22 * (1 - e)).toFixed(2)}px) brightness(${(1 + 0.9 * (1 - e)).toFixed(3)}) saturate(${(1 + 0.3 * (1 - e)).toFixed(3)})`;
     beam.style.opacity = (1 - smooth(0.82, 1, p)).toFixed(3);
     // 2) 최종 이미지: 위에서 아래로 부드럽게 채워짐
-    const r = 22 + 92 * smooth(0.05, 0.95, p);
+    const r = 12 + 102 * smooth(0.1, 0.95, p);
     const m = `linear-gradient(to bottom, #000 ${(r - 14).toFixed(2)}%, transparent ${r.toFixed(2)}%)`;
     img.style.webkitMaskImage = img.style.maskImage = m;
     // 3) 저작권 문구

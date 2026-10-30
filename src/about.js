@@ -442,12 +442,15 @@ export function createAbout(root) {
       onLeaveBack: () => { intro.classList.remove('is-open'); openIntro(); },
     });
 
-    /* 푸터: 화면에 들어오는 만큼 빛줄기가 수축하며 오브제가 맺힘 (되감기 가능) */
+    /* 푸터: 화면에 절반쯤 들어오면 오브제 모션 재생, 위로 벗어나면 되감기 */
+    const fp = { p: 0 };
     footer.set(0);
+    const ftTl = gsap.timeline({ paused: true })
+      .to(fp, { p: 1, duration: 2.2, ease: 'none', onUpdate: () => footer.set(fp.p) });
     ScrollTrigger.create({
-      trigger: '.ab-footer', start: 'top 85%', end: 'bottom bottom', scrub: 0.6,
-      onUpdate: (st) => footer.set(st.progress),
-      onRefresh: (st) => footer.set(st.progress),
+      trigger: '.ab-footer', start: 'top 55%',
+      onEnter: () => ftTl.timeScale(1).play(),
+      onLeaveBack: () => ftTl.timeScale(1.8).reverse(),
     });
 
     /* 영상은 화면에 보일 때만 재생 */

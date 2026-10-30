@@ -110,7 +110,7 @@ export function createExperience(root) {
       })
         .to(footerEl, { yPercent: toFooter ? 0 : 100, duration: 1, ease: 'expo.inOut' }, 0)
         .to(layers[front], { yPercent: toFooter ? -12 : 0, duration: 1, ease: 'expo.inOut' }, 0)
-        .to(fp, { p: toFooter ? 1 : 0, duration: toFooter ? 1.8 : 0.8, ease: toFooter ? 'power1.out' : 'power2.in', onUpdate: () => footer.set(fp.p) }, toFooter ? 0.3 : 0);
+        .to(fp, { p: toFooter ? 1 : 0, duration: toFooter ? 2.2 : 0.8, ease: toFooter ? 'none' : 'power2.in', onUpdate: () => footer.set(fp.p) }, toFooter ? 0.3 : 0);
       return;
     }
 
