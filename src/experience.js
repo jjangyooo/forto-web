@@ -5,6 +5,10 @@ import jejuVideo from './experience/jeju-terminal.mp4';
 import jejuPoster from './experience/jeju-terminal.jpg';
 import lunarVideo from './experience/rocket-to-lunar.mp4';
 import lunarPoster from './experience/rocket-to-lunar.jpg';
+import checkinVideo from './experience/jeju-checkin.mp4';
+import checkinPoster from './experience/jeju-checkin.jpg';
+import loungeVideo from './experience/jeju-lounge.mp4';
+import loungePoster from './experience/jeju-lounge.jpg';
 
 /*
  * Experience — Figma page "experience" (15:864)
@@ -19,7 +23,12 @@ import lunarPoster from './experience/rocket-to-lunar.jpg';
 const PROJECTS = [
   { title: 'FORTO JEJU TERMINAL', sub: 'First Encounter', video: jejuVideo, poster: jejuPoster },
   { title: 'FORTO ROCKET TO LUNAR', sub: 'First Encounter', video: lunarVideo, poster: lunarPoster },
+  // Figma 30:5 → 30:78 / 30:53 → 30:128 (텍스트는 피그마 그대로)
+  { title: 'FORTO JEJU TERMINAL', sub: 'First Encounter', video: checkinVideo, poster: checkinPoster },
+  { title: 'FORTO JEJU TERMINAL', sub: 'First Encounter', video: loungeVideo, poster: loungePoster },
 ];
+// 다음 장면이 밀고 올라올 때 빈 화면이 보이지 않도록 정지 화면을 미리 받아둠
+PROJECTS.forEach((p) => { const i = new Image(); i.src = p.poster; });
 
 // Figma 벡터 (1440×810 프레임 좌표). 세 경로 모두 같은 명령 구조라 숫자끼리 보간 가능
 const P_FULL = 'M 1439.0269775390625 395.007916033402 L 1439.0269775390625 376.0824547901739 L 1062.787353515625 376.0824547901739 C 1244.5759887695312 365.5830258991238 1392.5 218.81160544048586 1392.5 51.12956887425816 C 1392.5 33.74816226950918 1390.9295966625214 16.67556247258287 1388.033935546875 0 L 359.65093994140625 0 C 362.35028529167175 16.057950573551338 363.8226318359375 32.512935038218494 363.8226318359375 49.27672802732213 C 363.8226318359375 228.16405049136964 203.92325353622437 373.4355399382812 5.595006465911865 376.0824547901739 L 0 376.0824547901739 L 0 376.52361080600537 L 0 395.05202614182093 L 440.1896057128906 395.05202614182093 L 149.6909637451172 810.0441284179688 L 1148.5283203125 810.0441284179688 L 1439.0269775390625 395.05202614182093 L 1439.0269775390625 395.007916033402 Z';
