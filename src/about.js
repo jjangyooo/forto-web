@@ -26,6 +26,7 @@ import buildingUrl from './about/building.webp';
 // 임시: 인트로/다크 섹션 영상 레이어는 원본 수령 전까지 랜딩 마지막 씬 루프로 대체
 import introVideoUrl from './about/about-intro.mp4';
 import introPoster from './about/about-intro.jpg';
+import { mountSystem3 } from './system3.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -127,11 +128,13 @@ export function createAbout(root) {
   const wordSets = wordTargets.map((el) => ({ el, words: splitWords(el) }));
 
   // 일반 페이드업 대상 (라벨·이미지)
-  $$('.ab-label, .ab-sys, .ab-card').forEach((el) => {
+  $$('.ab-label, .ab-sys, .ab-card, .ab-s3__label').forEach((el) => {
     if (!el.closest('.ab-color, .ab-epi') && !el.classList.contains('ab-dark__building')) el.setAttribute('data-reveal', '');
   });
 
   const footer = mountFooter($('.ab-footer'));
+  const s3 = $$('.ab-s3card').map(mountSystem3);
+  window.addEventListener('resize', () => s3.forEach((c) => c.resize()));
   let ctx;
   let lenis;
   let openTimer;
@@ -147,7 +150,7 @@ export function createAbout(root) {
 
     /* 텍스트: 스크롤에 따라 단어가 컬러 블러 → 회색 블러 → 선명한 본문색 (되감기 가능) */
     wordSets.forEach(({ el, words }) => {
-      const dark = !!el.closest('.ab-epi, .ab-dark, .ab-sys2');
+      const dark = !!el.closest('.ab-epi, .ab-dark, .ab-sys2, .ab-sys3');
       const render = makeWordRenderer(words, dark, parseFloat(getComputedStyle(el).fontSize) || 18);
       const proxy = { p: 0 };
       render(0);
@@ -532,6 +535,17 @@ export function createAbout(root) {
       y: 0, opacity: 1, duration: 1.1, ease: 'expo.out', delay: 0.1,
       scrollTrigger: { trigger: '.ab-sys2__grid', start: 'top 75%', toggleActions: 'play none none reverse' },
     });
+
+    /* SYSTEM 3: 카드가 들어오면 세 심볼이 차례로 확장(압출) — 위로 되돌아가면 다시 접힘 */
+    s3.forEach((c) => { c.resize(); c.set(0); });
+    const s3p = s3.map(() => ({ k: 0 }));
+    const s3tl = gsap.timeline({ paused: true });
+    s3.forEach((c, i) => s3tl.to(s3p[i], { k: 1, duration: 1.8, ease: 'expo.inOut', onUpdate: () => c.set(s3p[i].k) }, 0.2 + i * 0.22));
+    ScrollTrigger.create({
+      trigger: '.ab-s3card--1', start: 'top 70%',
+      onEnter: () => s3tl.timeScale(1).play(),
+      onLeaveBack: () => s3tl.timeScale(1.6).reverse(),
+    });
   }
 
   function enter() {
@@ -539,6 +553,7 @@ export function createAbout(root) {
     if (reduce) {
       $('.ab-intro').classList.add('is-open');
       gsap.set($$('[data-reveal]'), { opacity: 1 });
+      s3.forEach((c) => { c.resize(); c.set(1); });
       return;
     }
     lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
