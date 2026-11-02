@@ -135,6 +135,9 @@ export function createAbout(root) {
   let ctx;
   let lenis;
   let openTimer;
+  let openTimer2;
+  let cueTimer;
+  let onCueScroll = null;
   let offStep = () => {};
 
   function build() {
@@ -455,6 +458,26 @@ export function createAbout(root) {
     });
     clearTimeout(openTimer);
     openTimer = setTimeout(() => intro.classList.add('is-open'), 600);
+
+    // 스크롤 유도: 영상이 화면 가득 열린 직후(확장 0.8s 뒤) 중앙 하단에 등장 → 사용자가 스크롤하면 사라짐
+    const cue = $('.ab-scroll');
+    let scrolledOnce = false;
+    const showCue = () => {
+      clearTimeout(cueTimer);
+      if (scrolledOnce || !intro.classList.contains('is-open')) return;
+      cueTimer = setTimeout(() => {
+        if (!scrolledOnce && intro.classList.contains('is-open')) cue.classList.add('is-on');
+      }, 900);
+    };
+    openTimer2 = setTimeout(showCue, 600);
+    onCueScroll = () => {
+      if (window.scrollY > 40) {
+        scrolledOnce = true;
+        clearTimeout(cueTimer);
+        cue.classList.remove('is-on');
+      }
+    };
+    window.addEventListener('scroll', onCueScroll, { passive: true });
     ScrollTrigger.create({
       trigger: intro, start: 'top+=2 top',
       onEnter: () => { clearTimeout(openTimer); intro.classList.add('is-open'); },
@@ -532,6 +555,11 @@ export function createAbout(root) {
 
   function leave() {
     clearTimeout(openTimer);
+    clearTimeout(openTimer2);
+    clearTimeout(cueTimer);
+    if (onCueScroll) window.removeEventListener('scroll', onCueScroll);
+    onCueScroll = null;
+    $('.ab-scroll').classList.remove('is-on');
     $('.ab-intro').classList.remove('is-open');
     introVideo.muted = true;
     introVideo.pause();
