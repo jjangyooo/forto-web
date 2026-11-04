@@ -26,6 +26,8 @@ import buildingUrl from './about/building.webp';
 // 임시: 인트로/다크 섹션 영상 레이어는 원본 수령 전까지 랜딩 마지막 씬 루프로 대체
 import introVideoUrl from './about/about-intro.mp4';
 import introPoster from './about/about-intro.jpg';
+import monitorUrl from './about/monitor.mp4';
+import monitorPoster from './about/monitor.jpg';
 import { mountSystem3 } from './system3.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -117,6 +119,9 @@ export function createAbout(root) {
   fly.src = cutoutUrl;
   $('.ab-dark__grid img').src = gridUrl;
   $('.ab-dark__building img').src = buildingUrl;
+  const monitorVideo = $('.ab-monitor__video');
+  monitorVideo.src = monitorUrl;
+  monitorVideo.poster = monitorPoster;
   const introVideo = $('.ab-intro__video');
   introVideo.src = introVideoUrl;
   introVideo.poster = introPoster;
@@ -514,7 +519,7 @@ export function createAbout(root) {
     });
 
     /* 영상은 화면에 보일 때만 재생 */
-    [[darkVideo, '.ab-dark__video'], [moonVideo, '.ab-two__card']].forEach(([v, trig]) => {
+    [[darkVideo, '.ab-dark__video'], [moonVideo, '.ab-two__card'], [monitorVideo, '.ab-monitor']].forEach(([v, trig]) => {
       ScrollTrigger.create({
         trigger: trig, start: 'top bottom', end: 'bottom top',
         onToggle: (st) => (st.isActive ? v.play().catch(() => {}) : v.pause()),
@@ -579,6 +584,7 @@ export function createAbout(root) {
     introVideo.muted = true;
     introVideo.pause();
     darkVideo.pause();
+    monitorVideo.pause();
     moonVideo.pause();
     offStep();
     ctx?.revert();

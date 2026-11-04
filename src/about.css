@@ -438,6 +438,10 @@ html.is-about .stage { display: none; }
 .ab-sys2__grid { left: calc(727 * var(--a)); top: calc(291 * var(--a)); width: calc(632 * var(--a)); height: calc(632 * var(--a)); background: #fff; }
 .ab-card.ab-sys2__hero img { position: absolute; left: calc(185 * var(--a)); top: calc(196 * var(--a)); width: calc(262 * var(--a)); height: auto; object-fit: contain; }
 .ab-card.ab-sys2__grid img { position: absolute; left: calc(123 * var(--a)); top: calc(91 * var(--a)); width: calc(385 * var(--a)); height: auto; object-fit: contain; }
+/* ---------- about+ : 모니터 영상 (1440×810) ---------- */
+.ab-monitor { position: relative; aspect-ratio: 1440 / 810; background: #000; overflow: hidden; }
+.ab-monitor__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
 /* ---------- SYSTEM 3 (30:181) ---------- */
 .ab-sys3 { height: calc(1046 * var(--a)); background: #000; color: #fff; }
 .ab-sys3__num  { position: absolute; left: calc(84 * var(--a));  top: calc(148 * var(--a)); }
