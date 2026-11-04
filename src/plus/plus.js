@@ -140,7 +140,7 @@ export function createPlus(root) {
     const frame = (e) => {
       const n = entries.indexOf(e) + 1;
       return `<button type="button" class="pl-frame" data-id="${esc(e.id)}" aria-label="${esc(e.name)}의 사방위표 보기">
-        <span class="pl-frame__edge">FORTO ${pad(n)}<i>▸</i>${pad(n)}A</span>
+        <span class="pl-frame__edge">FORTO ${pad(n)}<i>-</i>${pad(n)}A</span>
         <span class="pl-frame__pic">${symbolSVG(e.keywords, { layers: 26 })}<span class="pl-frame__name">${esc(e.name)}</span></span>
         <span class="pl-frame__edge pl-frame__edge--b">${esc(e.keywords.slice(0, 2).join(' · '))}<i>${fmtDate(e.created_at)}</i></span>
       </button>`;

@@ -33,7 +33,7 @@ html.is-plus .glass-canvas { display: none; }
 .pl-card__data dt,
 .pl-frame__edge {
   font: var(--lab);
-  font-stretch: 112%;
+  font-stretch: 118%;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -43,8 +43,9 @@ html.is-plus .glass-canvas { display: none; }
 .pl-kw em,
 .pl-label em,
 .pl-chip::before {
-  font-family: var(--font-mono-display);
-  font-weight: 400;
+  font-family: var(--font-display);
+  font-stretch: 118%;
+  font-weight: 500;
   letter-spacing: .02em;
 }
 
@@ -147,6 +148,7 @@ html.is-plus .glass-canvas { display: none; }
   white-space: nowrap;
 }
 .pl-win__bar > :nth-child(2) { margin-left: auto; color: var(--dim); }
+.pl-win__bar > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .pl-win__x {
   position: relative;
   flex: none;
@@ -308,7 +310,7 @@ html.is-plus .glass-canvas { display: none; }
   left: 7px;
   bottom: 5px;
   font: 600 11px/1 var(--font-display);
-  font-stretch: 110%;
+  font-stretch: 118%;
   letter-spacing: .02em;
   max-width: calc(100% - 14px);
   overflow: hidden;
@@ -384,7 +386,7 @@ html.is-plus .glass-canvas { display: none; }
   pointer-events: none;
   transition: opacity .25s, translate .35s var(--ease-out);
 }
-.pl-pin__tag b { color: #fff; font: 600 12px/1 var(--font-display), var(--font-kr); letter-spacing: 0; text-transform: none; }
+.pl-pin__tag b { color: #fff; font: 600 12px/1 var(--font-display), var(--font-kr); font-stretch: 118%; letter-spacing: 0; text-transform: none; }
 .pl-pin:hover .pl-pin__tag { opacity: 1; translate: 0 -50%; }
 .pl-pin:hover .pl-pin__ret,
 .pl-pin.is-focus .pl-pin__ret { inset: -9px; --c: var(--mint); }
@@ -426,6 +428,7 @@ html.is-plus .glass-canvas { display: none; }
 .pl-card__name {
   margin: 0;
   font: 600 calc(max(20px, 24 * var(--u))) / 1.1 var(--font-display), var(--font-kr);
+  font-stretch: 118%;
   letter-spacing: -0.02em;
   word-break: break-all;
 }
@@ -486,7 +489,7 @@ html.is-plus .glass-canvas { display: none; }
 .pl-field { display: block; margin: calc(60 * var(--u)) 0 0; padding: 0; border: 0; min-width: 0; }
 .pl-label { display: flex; align-items: baseline; gap: 10px; margin: 0; padding: 0; color: #fff; font-size: calc(max(11px, 13 * var(--u))); }
 .pl-label em { font-style: normal; color: var(--dim); font-size: .9em; }
-.pl-keys__count { margin-left: auto; color: var(--mint); font-family: var(--font-mono-display); letter-spacing: .04em; }
+.pl-keys__count { margin-left: auto; color: var(--mint); font-family: var(--font-display); font-stretch: 118%; letter-spacing: .04em; }
 .pl-name {
   display: block;
   width: calc(519 * var(--u));
@@ -499,6 +502,7 @@ html.is-plus .glass-canvas { display: none; }
   background: transparent;
   color: #fff;
   font-family: var(--font-display), var(--font-kr);
+  font-stretch: 118%;
   font-weight: 600;
   font-size: calc(22 * var(--u));
   line-height: 1.2;
@@ -533,7 +537,8 @@ html.is-plus .glass-canvas { display: none; }
   transition: background .25s, border-color .25s, color .25s, opacity .25s;
 }
 .pl-chip:hover:not(:disabled) { border-color: rgba(255, 255, 255, .7); color: #fff; }
-.pl-chip[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
+.pl-chip[aria-pressed="true"],
+.pl-chip[aria-pressed="true"]:hover:not(:disabled) { background: #fff; border-color: #fff; color: #000; }
 /* 고른 순서 번호 */
 .pl-chip::before {
   content: attr(data-n);
@@ -564,11 +569,12 @@ html.is-plus .glass-canvas { display: none; }
 .pl-result__name {
   margin: calc(22 * var(--u)) 0 0;
   font: 600 calc(40 * var(--u)) / 1.1 var(--font-display), var(--font-kr);
+  font-stretch: 118%;
   letter-spacing: -0.02em;
   word-break: break-all;
 }
 .pl-result .pl-kw { width: calc(420 * var(--u)); max-width: 100%; font-size: calc(max(13px, 15 * var(--u))); }
-.pl-result__msg { min-height: 1.4em; margin: calc(18 * var(--u)) 0 0; font: var(--lab); letter-spacing: .06em; color: var(--mint); }
+.pl-result__msg { min-height: 1.4em; margin: calc(18 * var(--u)) 0 0; font: var(--lab); font-stretch: 118%; letter-spacing: .06em; color: var(--mint); }
 .pl-result__actions { display: flex; gap: 12px; margin-top: calc(14 * var(--u)); }
 
 .pl.no-gl .pl-moon { display: none; }
