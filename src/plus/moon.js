@@ -38,11 +38,17 @@ void main(){
   alb=pow(alb,1.15)*1.12;
   vec3 col=vec3(alb)*vec3(1.,.985,.96)*shade*1.05; // 아주 약간 따뜻한 회색
   col+=vec3(alb)*vec3(.010,.012,.016);              // 어두운 면: 거의 검정
+  float lit=smoothstep(-.25,.55,dot(Ng,sun));
+  float rim=1.-mu;
+  col+=vec3(.82,.93,1.)*pow(rim,6.)*lit*.55;          // 가장자리 흰빛
+  col+=vec3(.0,.55,1.)*pow(rim,3.5)*lit*.10;          // 블루 번짐
   col=mix(vec3(0.),col,ready);
   gl_FragColor=vec4(col,1.);
 }`;
 
 const toRad = (d) => (d * Math.PI) / 180;
+const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const expoOut = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
 export const latLngToVec = (lat, lng, r = 1) => {
   const a = toRad(lat), b = toRad(lng);
   return new THREE.Vector3(Math.cos(a) * Math.cos(b) * r, Math.sin(a) * r, -Math.cos(a) * Math.sin(b) * r);
@@ -84,6 +90,29 @@ export function createMoon(canvas, { onFrame } = {}) {
   const moon = new THREE.Mesh(new THREE.SphereGeometry(1, 192, 144), mat);
   moon.visible = false;
   group.add(moon);
+
+  // 대기 글로우: 달 가장자리 바깥으로 흰빛 → 블루 → 민트 헤이즈 (빛 받는 쪽만)
+  const glowMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, side: THREE.BackSide, blending: THREE.AdditiveBlending,
+    uniforms: { sun: { value: uniforms.sun.value }, camPos: { value: camera.position }, ready: uniforms.ready },
+    vertexShader: 'varying vec3 vW; void main(){ vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }',
+    fragmentShader: `
+      uniform vec3 sun; uniform vec3 camPos; uniform float ready; varying vec3 vW;
+      void main(){
+        vec3 rd=normalize(vW-camPos);
+        float t=-dot(camPos,rd);
+        vec3 c=camPos+rd*t;                 // 시선에서 달 중심에 가장 가까운 점
+        float d=length(c);                  // 1 = 달 표면
+        float h=d-1.;
+        if(h<0.) discard;
+        float lit=smoothstep(-.35,.65,dot(normalize(c),sun));
+        vec3 col=vec3(.85,.95,1.)*exp(-h*90.)*.9        // 표면에 붙은 흰빛
+                +vec3(.05,.45,1.)*exp(-h*38.)*.38        // 블루 띠
+                +vec3(0.,.83,.64)*exp(-h*9.)*.42;       // 민트 헤이즈 (#00D4A2)
+        gl_FragColor=vec4(col*lit*ready,1.);
+      }`,
+  });
+  scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.3, 96, 72), glowMat));
 
   // 별: 드물고 어둡게
   {
@@ -165,19 +194,26 @@ export function createMoon(canvas, { onFrame } = {}) {
   const view = { x: 0, y: 0 };
   const setViewShift = (x, y) => { view.x = x; view.y = y; };
 
-  function focus(lat, lng, { dist, duration = 1.6, tilt = 0 } = {}) {
+  // 한 번에 휙 돌며 자리 잡는 회전 (레퍼런스: 빠르게 돌고 길게 감속)
+  function spin(dYaw, dPitch = 0, duration = 1.3) {
+    tween = { y0: st.yaw, y1: st.yaw + dYaw, p0: st.pitch, p1: Math.max(-1.2, Math.min(1.2, st.pitch + dPitch)), t0: performance.now(), dur: duration * 1000, ease: expoOut };
+    st.vy = st.vp = 0;
+    lastInteract = performance.now();
+  }
+
+  function focus(lat, lng, { dist, duration = 1.6, tilt = 0, ease = easeInOut } = {}) {
     const v = latLngToVec(lat, lng);
     const yaw = -Math.atan2(v.x, v.z);
     const pitch = Math.max(-1.2, Math.min(1.2, Math.atan2(v.y, Math.hypot(v.x, v.z)) + tilt));
     let dy = yaw - st.yaw;
     dy = Math.atan2(Math.sin(dy), Math.cos(dy));
-    tween = { y0: st.yaw, y1: st.yaw + dy, p0: st.pitch, p1: pitch, t0: performance.now(), dur: duration * 1000 };
+    tween = { y0: st.yaw, y1: st.yaw + dy, p0: st.pitch, p1: pitch, t0: performance.now(), dur: duration * 1000, ease };
     if (dist) st.distTo = dist;
     st.vy = st.vp = 0;
     lastInteract = performance.now();
   }
 
-  const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  
   const tmp = new THREE.Vector3();
   const qInv = new THREE.Quaternion();
   let running = false;
@@ -195,7 +231,7 @@ export function createMoon(canvas, { onFrame } = {}) {
     }
     if (tween) {
       const t = Math.min(1, (now - tween.t0) / tween.dur);
-      const e = ease(t);
+      const e = tween.ease(t);
       st.yaw = tween.y0 + (tween.y1 - tween.y0) * e;
       st.pitch = tween.p0 + (tween.p1 - tween.p0) * e;
       if (t >= 1) tween = null;
@@ -205,7 +241,7 @@ export function createMoon(canvas, { onFrame } = {}) {
       st.pitch = Math.max(-1.2, Math.min(1.2, st.pitch));
       if (st.auto && now - lastInteract > 2500) st.yaw += dt * 0.025;
     }
-    st.dist += (st.distTo - st.dist) * Math.min(1, dt * 6);
+    st.dist += (st.distTo - st.dist) * Math.min(1, dt * 4.2);
     applyRot();
     camera.position.set(0, 0, st.dist);
     camera.setViewOffset(W, H, -view.x * W, -view.y * H, W, H);
@@ -237,7 +273,8 @@ export function createMoon(canvas, { onFrame } = {}) {
     start() { if (running) return; running = true; last = performance.now(); raf = requestAnimationFrame(frame); },
     stop() { running = false; cancelAnimationFrame(raf); },
     resize, focus, project, radiusPx, setViewShift, viewCenter,
-    setDist(d) { st.distTo = d; },
+    setDist(d, instant = false) { st.distTo = d; if (instant) st.dist = d; },
+    spin,
     zoom: () => 4.2 / st.dist,
     heading: () => st.yaw,
   };

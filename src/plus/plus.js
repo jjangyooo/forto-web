@@ -205,9 +205,9 @@ export function createPlus(root) {
   function layout(to, dur = 1.2) {
     const target = to === 'panel'
       ? (mobile() ? { x: 0, y: -0.3 } : { x: 0.24, y: 0.02 })
-      : (mobile() ? { x: 0, y: 0.12 } : { x: 0, y: 0.53 });
-    gsap.to(shift, { ...target, duration: dur, ease: 'expo.inOut', onUpdate: () => moon?.setViewShift(shift.x, shift.y) });
-    moon?.setDist(to === 'panel' ? (mobile() ? 9 : 4.6) : (mobile() ? 5.2 : 3.4));
+      : (mobile() ? { x: 0, y: 0.14 } : { x: 0, y: 0.54 });
+    gsap.to(shift, { ...target, duration: dur, ease: 'expo.out', onUpdate: () => moon?.setViewShift(shift.x, shift.y) });
+    moon?.setDist(to === 'panel' ? (mobile() ? 9 : 4.6) : (mobile() ? 4.8 : 3.1), dur === 0);
   }
 
   function openPanel() {
@@ -219,7 +219,8 @@ export function createPlus(root) {
     gsap.to(chrome, { autoAlpha: 0, duration: 0.45, ease: 'power2.in' });
     gsap.fromTo(panel, { xPercent: mobile() ? 0 : -100, yPercent: mobile() ? 100 : 0 }, { xPercent: 0, yPercent: 0, duration: 1, ease: 'expo.out' });
     gsap.fromTo(form.children, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.05, ease: 'expo.out', delay: 0.25 });
-    layout('panel');
+    layout('panel', 1.3);
+    moon?.spin(1.05, -0.12, 1.5);      // 옆으로 가며 휙 돌아 자리 잡음
     setTimeout(() => nameIn.focus({ preventScroll: true }), 700);
   }
   function closePanel() {
@@ -228,7 +229,8 @@ export function createPlus(root) {
     panel.setAttribute('aria-hidden', 'true');
     gsap.to(panel, { xPercent: mobile() ? 0 : -100, yPercent: mobile() ? 100 : 0, duration: 0.8, ease: 'expo.inOut' });
     gsap.to(chrome, { autoAlpha: 1, duration: 0.8, ease: 'expo.out', delay: 0.35 });
-    layout('explore');
+    layout('explore', 1.3);
+    moon?.spin(-1.05, 0.12, 1.5);
   }
   $('.pl-intro__find').addEventListener('click', openPanel);
   $('.pl-panel__close').addEventListener('click', closePanel);
