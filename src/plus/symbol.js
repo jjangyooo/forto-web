@@ -78,9 +78,14 @@ function outline(p) {
  * @param {string[]} keys 키워드 5개
  * @param {{layers?: number, size?: number, id?: string}} o
  */
-export function symbolSVG(keys, { layers = 48, id = 's' + Math.random().toString(36).slice(2, 8) } = {}) {
+export function symbolSVG(keys, { layers = 48, flat = false, id = 's' + Math.random().toString(36).slice(2, 8) } = {}) {
   const p = paramsFor(keys);
   const d = outline(p);
+  if (flat) {
+    // 핀용: 윗면만 (압출 없이) — 키워드에 따라 형태만 달라짐
+    const pad = 6 + p.line;
+    return `<svg viewBox="${(-pad).toFixed(1)} -6 ${(102 + pad).toFixed(1)} 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="${d}" fill="currentColor"/></svg>`;
+  }
   const c0 = palette(p.hue - 0.45);
   const c1 = palette(p.hue + 0.45);
   const dark = [2, 9, 16];
