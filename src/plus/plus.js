@@ -5,6 +5,7 @@ import { symbolSVG } from './symbol.js';
 import { KEYWORD_LIST, PICK } from './keywords.js';
 import { listFortos, addForto, pickSpot } from './store.js';
 import mapUrl from './tex/moon-map.jpg';
+import { createKeyboard, isKiosk } from './keyboard.js';
 
 /*
  * PLUS — 사용자 흐름
@@ -73,6 +74,17 @@ export function createPlus(root) {
     syncForm();
   });
   nameIn.addEventListener('input', syncForm);
+
+  /* ---------- 터치 화면: FORTO 화면 키보드 ---------- */
+  let kb = null;
+  if (isKiosk()) {
+    root.classList.add('is-kiosk');
+    kb = createKeyboard(root);
+    kb.attach(nameIn);
+    nameIn.addEventListener('pointerdown', () => kb.show());
+    // 패널의 다른 곳(키워드 등)을 누르면 키보드를 내림
+    panel.addEventListener('pointerdown', (e) => { if (kb.open && e.target !== nameIn) kb.hide(); });
+  }
 
   /* ---------- 핀 (달 표면) ---------- */
   function addPin(entry) {
@@ -221,9 +233,11 @@ export function createPlus(root) {
     gsap.fromTo(form.children, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.05, ease: 'expo.out', delay: 0.25 });
     layout('panel', 1.3);
     moon?.spin(1.05, -0.12, 1.5);      // 옆으로 가며 휙 돌아 자리 잡음
-    setTimeout(() => nameIn.focus({ preventScroll: true }), 700);
+    // 패널이 자리 잡으면 이름 입력칸 활성화 → 터치 화면에서는 FORTO 키보드가 바로 올라옴
+    setTimeout(() => { if (state === 'panel' && !form.hidden) nameIn.focus({ preventScroll: true }); }, 650);
   }
   function closePanel() {
+    kb?.hide();
     state = 'explore';
     root.classList.remove('is-panel');
     panel.setAttribute('aria-hidden', 'true');
@@ -245,6 +259,7 @@ export function createPlus(root) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (makeBtn.disabled) return;
+    kb?.hide();
     draft = { name: nameIn.value.trim(), keywords: [...selected] };
     form.hidden = true;
     result.hidden = false;
