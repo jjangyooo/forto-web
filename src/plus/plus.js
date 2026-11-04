@@ -5,7 +5,7 @@ import { symbolSVG } from './symbol.js';
 import { KEYWORD_LIST, PICK } from './keywords.js';
 import { listFortos, addForto, pickSpot } from './store.js';
 import mapUrl from './tex/moon-map.jpg';
-import { createKeyboard, isKiosk } from './keyboard.js';
+import { createKeyboard, isKiosk, setKioskOverride } from './keyboard.js';
 import Hangul from 'hangul-js';
 
 /*
@@ -78,16 +78,28 @@ export function createPlus(root) {
   nameIn.addEventListener('input', syncForm);
 
   /* ---------- 터치 화면: FORTO 화면 키보드 ---------- */
-  let kb = null;
-  if (isKiosk()) {
-    root.classList.add('is-kiosk');
-    kb = createKeyboard(root);
-    kb.attach(nameIn);
-    kb.attach($('.pl-search__input'));
-    $('.pl-search__input').addEventListener('pointerdown', () => kb.show());
-    nameIn.addEventListener('pointerdown', () => kb.show());
-    // 패널의 다른 곳(키워드 등)을 누르면 키보드를 내림
-    panel.addEventListener('pointerdown', (e) => { if (kb.open && e.target !== nameIn) kb.hide(); });
+  const kb = createKeyboard(root);
+  kb.attach(nameIn);
+  kb.attach($('.pl-search__input'));
+  root.classList.toggle('is-kiosk', isKiosk());
+  // 패널의 다른 곳(키워드 등)을 누르면 키보드를 내림
+  panel.addEventListener('pointerdown', (e) => { if (kb.open && e.target !== nameIn) kb.hide(); });
+  // PC에서 터치 키오스크 화면 미리보기: K 키로 켜기/끄기
+  const toast = document.createElement('p');
+  toast.className = 'pl-toast';
+  root.appendChild(toast);
+  let toastT;
+  function toggleKiosk() {
+    const on = !isKiosk();
+    setKioskOverride(on);
+    root.classList.toggle('is-kiosk', on);
+    if (!on) kb.hide();
+    toast.textContent = on ? 'TOUCH KEYBOARD · ON' : 'TOUCH KEYBOARD · OFF';
+    toast.classList.add('is-on');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => toast.classList.remove('is-on'), 1600);
+    const a = document.activeElement;
+    if (on && (a === nameIn || a === $('.pl-search__input'))) { a.blur(); a.focus({ preventScroll: true }); }
   }
 
   /* ---------- 핀 (달 표면) ---------- */
@@ -242,7 +254,7 @@ export function createPlus(root) {
     setTimeout(() => { if (state === 'panel' && !form.hidden) nameIn.focus({ preventScroll: true }); }, 650);
   }
   function closePanel() {
-    kb?.hide();
+    kb.hide();
     state = 'explore';
     root.classList.remove('is-panel');
     panel.setAttribute('aria-hidden', 'true');
@@ -264,7 +276,7 @@ export function createPlus(root) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (makeBtn.disabled) return;
-    kb?.hide();
+    kb.hide();
     draft = { name: nameIn.value.trim(), keywords: [...selected] };
     form.hidden = true;
     result.hidden = false;
@@ -345,7 +357,7 @@ export function createPlus(root) {
   }
   function closeSearch() {
     if (sWin.hidden) return;
-    kb?.hide();
+    kb.hide();
     sBtn.setAttribute('aria-expanded', 'false');
     search.classList.remove('is-open');
     gsap.to(sWin, { opacity: 0, y: -6, duration: 0.25, ease: 'power2.in', onComplete: () => { sWin.hidden = true; } });
@@ -358,11 +370,13 @@ export function createPlus(root) {
     const b = e.target.closest('.pl-search__hit');
     if (!b) return;
     const entry = entries.find((x) => String(x.id) === b.dataset.id);
-    kb?.hide();
+    kb.hide();
     if (entry) openCard(entry);
   });
 
   const onKey = (e) => {
+    const typing = e.target instanceof HTMLInputElement;
+    if (!typing && (e.key === 'k' || e.key === 'K') && !e.metaKey && !e.ctrlKey && !e.altKey) { toggleKiosk(); return; }
     if (e.key !== 'Escape') return;
     if (!sWin.hidden) closeSearch();
     else if (!card.hidden) closeCard();

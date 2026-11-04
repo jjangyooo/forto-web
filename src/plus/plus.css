@@ -818,3 +818,24 @@ html.is-plus .glass-canvas { display: none; }
   .pl-search__btn { width: 42px; height: 42px; }
   .pl-search__win { width: calc(100vw - 24px); min-width: 0; }
 }
+
+/* K 키 토글 안내 */
+.pl-toast {
+  position: absolute;
+  left: 50%;
+  top: calc(104 * var(--u));
+  z-index: 9;
+  margin: 0;
+  padding: 9px 14px;
+  border: 1px solid var(--line-2);
+  background: rgba(6, 6, 6, .85);
+  font: var(--lab);
+  font-stretch: 118%;
+  letter-spacing: .08em;
+  color: var(--mint);
+  translate: -50% -6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s, translate .4s var(--ease-out);
+}
+.pl-toast.is-on { opacity: 1; translate: -50% 0; }

@@ -21,9 +21,19 @@ const EN = [
 ];
 
 // 키오스크(터치 화면)인지: 거친 포인터가 있고 휴대폰 크기가 아님, 또는 주소에 ?kiosk
+// PC에서 미리 보려면 Plus 화면에서 K 키 → 켜기/끄기 (이 탭에서만 유지)
+const FLAG = 'forto-kiosk';
+export function getKioskOverride() {
+  try { const v = sessionStorage.getItem(FLAG); return v == null ? null : v === '1'; } catch { return null; }
+}
+export function setKioskOverride(on) {
+  try { sessionStorage.setItem(FLAG, on ? '1' : '0'); } catch { /* 저장 불가 환경 */ }
+}
 export const isKiosk = () => {
   const q = new URLSearchParams(location.search);
   if (q.has('kiosk')) return q.get('kiosk') !== '0';
+  const o = getKioskOverride();
+  if (o != null) return o;
   return window.matchMedia('(any-pointer: coarse)').matches && window.innerWidth > 800;
 };
 
@@ -112,9 +122,11 @@ export function createKeyboard(host) {
 
   /** 입력칸에 연결: 탭(포커스)하면 키보드가 올라옴 */
   function attach(target, { done } = {}) {
-    target.setAttribute('inputmode', 'none');       // OS 터치 키보드는 띄우지 않음
+    const sync = () => { if (isKiosk()) target.setAttribute('inputmode', 'none'); else target.removeAttribute('inputmode'); };  // 터치 화면에선 OS 키보드 대신
+    sync();
     target.setAttribute('autocomplete', 'off');
-    target.addEventListener('focus', () => { input = target; onDone = done; show(); });
+    target.addEventListener('focus', () => { sync(); if (!isKiosk()) return; input = target; onDone = done; show(); });
+    target.addEventListener('pointerdown', () => { if (isKiosk() && document.activeElement === target) { input = target; onDone = done; show(); } });
   }
 
   return { attach, show, hide, el, get open() { return !el.hidden; } };
