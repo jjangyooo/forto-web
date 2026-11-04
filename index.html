@@ -229,6 +229,16 @@
       <button class="pl-btn pl-intro__find" type="button">FIND</button>
     </section>
 
+    <!-- 검색: 아이콘 → 펼치면 이름 검색 -->
+    <div class="pl-search">
+      <button class="pl-search__btn" type="button" aria-label="이름으로 사방위표 찾기" aria-expanded="false"><i class="pl-search__icon"></i></button>
+      <div class="pl-search__win pl-win" role="search" hidden>
+        <div class="pl-win__bar"><span>SEARCH</span><span class="pl-search__n"></span><button class="pl-win__x pl-search__close" type="button" aria-label="검색 닫기"></button></div>
+        <label class="pl-search__field"><i class="pl-search__icon" aria-hidden="true"></i><input class="pl-search__input" type="search" maxlength="20" placeholder="NAME" aria-label="이름 검색" autocomplete="off" /></label>
+        <ul class="pl-search__list" role="listbox" aria-label="검색 결과"></ul>
+      </div>
+    </div>
+
     <!-- 미니맵: 달 전체 지도 위 등록 위치와 현재 보고 있는 곳 -->
     <figure class="pl-map pl-win" aria-label="달 지도">
       <figcaption class="pl-win__bar"><span>LUNAR MAP</span><span class="pl-map__coord">—</span></figcaption>

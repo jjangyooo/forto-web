@@ -702,3 +702,119 @@ html.is-plus .glass-canvas { display: none; }
 .kb__del i { width: 22px; height: 15px; border: 1.5px solid currentColor; border-left: 0; border-radius: 0 3px 3px 0; margin-left: 3px; }
 .kb__del i::before { content: ''; position: absolute; left: -7px; top: 1.5px; width: 9px; height: 9px; border-left: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; rotate: 45deg; }
 .kb__del i::after { content: '×'; position: absolute; inset: 0; display: grid; place-items: center; font: 400 14px/1 var(--font-kr); }
+
+/* ---------- 이름 검색 ---------- */
+.pl-search {
+  position: absolute;
+  left: calc(80 * var(--u));
+  top: calc(104 * var(--u));
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pl-search__btn {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--line-2);
+  background: rgba(6, 6, 6, .6);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  cursor: pointer;
+  transition: background .25s, border-color .25s, color .25s;
+}
+.pl-search__btn:hover,
+.pl-search.is-open .pl-search__btn { background: #fff; border-color: #fff; color: #000; }
+.pl-search__btn:focus-visible { outline: 1px solid var(--mint); outline-offset: 3px; }
+/* 돋보기 */
+.pl-search__icon {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 15px; height: 15px;
+  translate: -60% -60%;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+.pl-search__icon::after {
+  content: '';
+  position: absolute;
+  left: 100%; top: 100%;
+  width: 7px; height: 1.5px;
+  background: currentColor;
+  rotate: 45deg;
+  transform-origin: 0 50%;
+  translate: -2px -1px;
+}
+.pl-search__win { width: calc(320 * var(--u)); min-width: 280px; }
+.pl-search__win[hidden] { display: none; }
+.pl-search__field { position: relative; display: block; border-bottom: 1px solid var(--line); }
+.pl-search__field .pl-search__icon { left: 22px; color: var(--dim); }
+.pl-search__input {
+  width: 100%;
+  height: 52px;
+  padding: 0 14px 0 44px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: 600 18px/1 var(--font-display), var(--font-kr);
+  font-stretch: 118%;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.pl-search__input::-webkit-search-cancel-button { display: none; }
+.pl-search__input::placeholder { color: rgba(255, 255, 255, .3); letter-spacing: .06em; }
+.pl-search__list { margin: 0; padding: 0; list-style: none; max-height: 340px; overflow-y: auto; }
+.pl-search__list:empty { display: none; }
+.pl-search__hit {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: background .2s;
+}
+.pl-search__hit:hover,
+.pl-search__hit:focus-visible { background: rgba(255, 255, 255, .07); outline: none; }
+.pl-search__hit:active { background: rgba(151, 249, 255, .14); }
+.pl-search__sym { width: 24px; height: 24px; color: #fff; }
+.pl-search__sym svg { width: 100%; height: 100%; display: block; }
+.pl-search__hit b { font: 600 16px/1.2 var(--font-display), var(--font-kr); font-stretch: 118%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-search__hit em { font: 500 10px/1 var(--font-display); font-stretch: 118%; font-style: normal; letter-spacing: .04em; color: var(--dim); white-space: nowrap; }
+.pl-search__none {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  font: var(--lab);
+  font-stretch: 118%;
+  letter-spacing: .08em;
+  color: var(--dim);
+}
+.pl-search__make {
+  padding: 8px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: none;
+  color: #fff;
+  font: 600 13px/1 var(--font-kr);
+  cursor: pointer;
+}
+.pl-search__make:hover { background: #fff; color: #000; }
+@media (max-width: 800px) {
+  .pl-search { left: 12px; top: 72px; }
+  .pl-search__btn { width: 42px; height: 42px; }
+  .pl-search__win { width: calc(100vw - 24px); min-width: 0; }
+}

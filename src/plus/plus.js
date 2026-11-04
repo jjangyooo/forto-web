@@ -6,6 +6,7 @@ import { KEYWORD_LIST, PICK } from './keywords.js';
 import { listFortos, addForto, pickSpot } from './store.js';
 import mapUrl from './tex/moon-map.jpg';
 import { createKeyboard, isKiosk } from './keyboard.js';
+import Hangul from 'hangul-js';
 
 /*
  * PLUS — 사용자 흐름
@@ -41,7 +42,8 @@ export function createPlus(root) {
   const archive = $('.pl-archive');
   const track = $('.pl-film__track');
   const read = $('.pl-read');
-  const chrome = [intro, map, archive, read];
+  const search = $('.pl-search');
+  const chrome = [intro, map, archive, read, search];
 
   $('.pl-map__img').style.backgroundImage = `url(${mapUrl})`;
 
@@ -81,6 +83,8 @@ export function createPlus(root) {
     root.classList.add('is-kiosk');
     kb = createKeyboard(root);
     kb.attach(nameIn);
+    kb.attach($('.pl-search__input'));
+    $('.pl-search__input').addEventListener('pointerdown', () => kb.show());
     nameIn.addEventListener('pointerdown', () => kb.show());
     // 패널의 다른 곳(키워드 등)을 누르면 키보드를 내림
     panel.addEventListener('pointerdown', (e) => { if (kb.open && e.target !== nameIn) kb.hide(); });
@@ -224,13 +228,14 @@ export function createPlus(root) {
 
   function openPanel() {
     state = 'panel';
+    closeSearch();
     if (!card.hidden) closeCard();
     root.classList.add('is-panel');
     panel.setAttribute('aria-hidden', 'false');
     showForm(false);
     gsap.to(chrome, { autoAlpha: 0, duration: 0.45, ease: 'power2.in' });
     gsap.fromTo(panel, { xPercent: mobile() ? 0 : -100, yPercent: mobile() ? 100 : 0 }, { xPercent: 0, yPercent: 0, duration: 1, ease: 'expo.out' });
-    gsap.fromTo(form.children, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.05, ease: 'expo.out', delay: 0.25 });
+    gsap.fromTo(form.children, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.05, ease: 'expo.out', delay: 0.25 });
     layout('panel', 1.3);
     moon?.spin(1.05, -0.12, 1.5);      // 옆으로 가며 휙 돌아 자리 잡음
     // 패널이 자리 잡으면 이름 입력칸 활성화 → 터치 화면에서는 FORTO 키보드가 바로 올라옴
@@ -313,9 +318,54 @@ export function createPlus(root) {
     renderFilm();
   }
 
+  /* ---------- 이름 검색 ---------- */
+  const sBtn = $('.pl-search__btn');
+  const sWin = $('.pl-search__win');
+  const sIn = $('.pl-search__input');
+  const sList = $('.pl-search__list');
+  function runSearch() {
+    const q = sIn.value.trim();
+    if (!q) { sList.innerHTML = ''; $('.pl-search__n').textContent = ''; return; }
+    const ql = q.toLowerCase();
+    const hits = [...entries].reverse().filter((e) => e.name.toLowerCase().includes(ql) || Hangul.search(e.name, q) >= 0);
+    $('.pl-search__n').textContent = `${pad(hits.length)} FOUND`;
+    sList.innerHTML = hits.length
+      ? hits.slice(0, 6).map((e) => `<li><button type="button" class="pl-search__hit" data-id="${esc(e.id)}">
+          <span class="pl-search__sym">${symbolSVG(e.keywords, { flat: true })}</span>
+          <b>${esc(e.name)}</b><em>${fmtLat(e.lat)} ${fmtLng(e.lng)}</em></button></li>`).join('')
+      : '<li class="pl-search__none">NO FORTO FOUND<button type="button" class="pl-search__make">FIND로 만들기</button></li>';
+  }
+  function openSearch() {
+    sWin.hidden = false;
+    sBtn.setAttribute('aria-expanded', 'true');
+    search.classList.add('is-open');
+    gsap.fromTo(sWin, { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.45, ease: 'expo.out' });
+    sIn.focus({ preventScroll: true });
+    runSearch();
+  }
+  function closeSearch() {
+    if (sWin.hidden) return;
+    kb?.hide();
+    sBtn.setAttribute('aria-expanded', 'false');
+    search.classList.remove('is-open');
+    gsap.to(sWin, { opacity: 0, y: -6, duration: 0.25, ease: 'power2.in', onComplete: () => { sWin.hidden = true; } });
+  }
+  sBtn.addEventListener('click', () => (sWin.hidden ? openSearch() : closeSearch()));
+  $('.pl-search__close').addEventListener('click', closeSearch);
+  sIn.addEventListener('input', runSearch);
+  sList.addEventListener('click', (e) => {
+    if (e.target.closest('.pl-search__make')) { closeSearch(); openPanel(); return; }
+    const b = e.target.closest('.pl-search__hit');
+    if (!b) return;
+    const entry = entries.find((x) => String(x.id) === b.dataset.id);
+    kb?.hide();
+    if (entry) openCard(entry);
+  });
+
   const onKey = (e) => {
     if (e.key !== 'Escape') return;
-    if (!card.hidden) closeCard();
+    if (!sWin.hidden) closeSearch();
+    else if (!card.hidden) closeCard();
     else if (state === 'panel') closePanel();
   };
 
