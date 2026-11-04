@@ -211,6 +211,62 @@
     </div>
   </div>
 
+  <!-- PLUS: 달 위에 나만의 사방위표 남기기 (Figma plus 68:18) -->
+  <div class="view pl" data-view="plus" hidden>
+    <canvas class="pl-moon" aria-label="드래그해서 돌려 볼 수 있는 달. 등록된 사방위표가 표면에 놓여 있습니다."></canvas>
+    <div class="pl-pins"></div>
+    <div class="pl-fade" aria-hidden="true"></div>
+
+    <section class="pl-intro">
+      <h1 class="pl-intro__title">FIND YOUR FORTO</h1>
+      <p class="pl-intro__sub">달에서 발견할 나만의 사방위표를 찾아보세요.</p>
+      <button class="pl-btn pl-intro__find" type="button">FIND</button>
+    </section>
+
+    <div class="pl-meta">
+      <p class="pl-meta__count"><b class="pl-count">0</b> FORTOS ON THE MOON</p>
+      <p class="pl-meta__hint">드래그해서 달을 둘러보고, 사방위표를 눌러 보세요</p>
+      <p class="pl-meta__demo" hidden>DEMO · 예시 데이터</p>
+    </div>
+
+    <aside class="pl-panel" aria-label="나의 사방위표 찾기" aria-hidden="true">
+      <button class="pl-panel__close" type="button" aria-label="닫기"><span></span><span></span></button>
+      <form class="pl-form" novalidate>
+        <h2 class="pl-panel__title">Find your<br>Forto in moon</h2>
+        <p class="pl-panel__sub">달에서 가장 ‘나이고 싶은’ 키워드를 골라 생성하세요.</p>
+        <label class="pl-field">
+          <span class="pl-label">Name</span>
+          <input class="pl-name" name="name" type="text" maxlength="20" placeholder="YOUR NAME" autocomplete="nickname" required />
+        </label>
+        <fieldset class="pl-field pl-keys">
+          <legend class="pl-label">KEYWORDS <span class="pl-keys__count">0 / 5</span></legend>
+          <div class="pl-chips"></div>
+        </fieldset>
+        <button class="pl-btn pl-make" type="submit" disabled>MAKE</button>
+      </form>
+      <div class="pl-result" hidden>
+        <p class="pl-label">YOUR FORTO</p>
+        <div class="pl-result__art"></div>
+        <h2 class="pl-result__name"></h2>
+        <ul class="pl-tags pl-result__tags"></ul>
+        <p class="pl-result__msg" role="status"></p>
+        <div class="pl-result__actions">
+          <button class="pl-btn pl-btn--ghost pl-redo" type="button">다시 고르기</button>
+          <button class="pl-btn pl-save" type="button">달에 남기기</button>
+        </div>
+      </div>
+    </aside>
+
+    <article class="pl-card" aria-live="polite" hidden>
+      <button class="pl-card__close" type="button" aria-label="닫기"><span></span><span></span></button>
+      <div class="pl-card__art"></div>
+      <p class="pl-card__note"></p>
+      <h3 class="pl-card__name"></h3>
+      <ul class="pl-tags pl-card__tags"></ul>
+      <p class="pl-card__coord"></p>
+    </article>
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

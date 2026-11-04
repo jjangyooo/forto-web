@@ -3,3 +3,7 @@ dist/
 dist-preview/
 .DS_Store
 dist-art/
+
+.env
+.env.local
+.env.*.local

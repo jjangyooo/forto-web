@@ -4,6 +4,7 @@ import './style.css';
 import { buildWordmark } from './wordmark.js';
 import { createAbout } from './about.js';
 import { createExperience } from './experience.js';
+import { createPlus } from './plus/plus.js';
 import { createGlass } from './glass.js';
 import logoUrl from './assets/forto-logo.svg';
 import homeUrl from './media/home.mp4';
@@ -144,7 +145,9 @@ function unit() {
 /* ---------- 라우팅: #home / #about ---------- */
 const expEl = document.querySelector('[data-view="experience"]');
 const experience = createExperience(expEl);
-const VIEWS = { home, about: aboutEl, experience: expEl };
+const plusEl = document.querySelector('[data-view="plus"]');
+const plus = createPlus(plusEl);
+const VIEWS = { home, about: aboutEl, experience: expEl, plus: plusEl };
 let current = 'home';
 
 function viewFromHash() {
@@ -160,6 +163,11 @@ function setNav(key) {
 }
 
 function showView(key) {
+  if (key === 'plus') {
+    document.documentElement.classList.add('is-plus');
+    loopVideo.pause();
+    plus.enter();
+  }
   if (key === 'experience') {
     document.documentElement.classList.add('is-exp');
     loopVideo.pause();
@@ -172,6 +180,11 @@ function showView(key) {
 }
 
 function hideView(key) {
+  if (key === 'plus') {
+    plus.leave();
+    document.documentElement.classList.remove('is-plus');
+    loopVideo.play().catch(() => {});
+  }
   if (key === 'experience') {
     experience.leave();
     document.documentElement.classList.remove('is-exp');
