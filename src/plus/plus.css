@@ -458,7 +458,7 @@ html.is-plus .glass-canvas { display: none; }
   bottom: 0;
   width: calc(708 * var(--u));
   z-index: 6;
-  padding: calc(94 * var(--u)) calc(88 * var(--u)) calc(60 * var(--u)) calc(80 * var(--u));
+  padding: calc(94 * var(--u)) calc(54 * var(--u)) calc(60 * var(--u)) calc(80 * var(--u));
   background: rgba(4, 4, 4, .8);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
@@ -511,27 +511,27 @@ html.is-plus .glass-canvas { display: none; }
 }
 .pl-name::placeholder { color: rgba(255, 255, 255, .32); }
 .pl-name:focus { border-color: #fff; }
-.pl-keys { margin-top: calc(48 * var(--u)); width: calc(560 * var(--u)); max-width: 100%; }
+.pl-keys { margin-top: calc(48 * var(--u)); width: calc(574 * var(--u)); max-width: 100%; }
 .pl-keys .pl-label { width: 100%; }
 .pl-chips {
   display: grid;
-  grid-template-columns: repeat(6, calc(85 * var(--u)));
-  column-gap: calc(10 * var(--u));
-  row-gap: calc(26 * var(--u));
-  margin-top: calc(16 * var(--u));
+  grid-template-columns: repeat(7, 1fr);
+  column-gap: calc(6 * var(--u));
+  row-gap: calc(max(16px, 17 * var(--u)));
+  margin-top: calc(20 * var(--u));
 }
 .pl-chip {
   position: relative;
-  height: calc(46 * var(--u));
+  height: calc(42 * var(--u));
   padding: 0;
   border: 1px solid rgba(255, 255, 255, .26);
-  border-radius: calc(23 * var(--u));
+  border-radius: calc(21 * var(--u));
   background: transparent;
   color: rgba(255, 255, 255, .86);
   font-family: var(--font-kr);
   font-weight: 600;
-  font-size: calc(16 * var(--u));
-  letter-spacing: -0.02em;
+  font-size: calc(15 * var(--u));
+  letter-spacing: -0.03em;
   white-space: nowrap;
   cursor: pointer;
   transition: background .25s, border-color .25s, color .25s, opacity .25s;
@@ -544,9 +544,9 @@ html.is-plus .glass-canvas { display: none; }
   content: attr(data-n);
   position: absolute;
   left: 50%;
-  top: -15px;
+  top: -13px;
   translate: -50% 0;
-  font-size: 10px;
+  font-size: 9px;
   color: var(--mint);
 }
 .pl-chip:disabled { opacity: .28; cursor: default; }
@@ -615,8 +615,8 @@ html.is-plus .glass-canvas { display: none; }
   .pl-label { font-size: 11px; }
   .pl-name { width: 100%; margin-top: 10px; font-size: 17px; }
   .pl-keys { margin-top: 30px; width: 100%; }
-  .pl-chips { grid-template-columns: repeat(4, 1fr); gap: 20px 8px; }
-  .pl-chip { height: 40px; font-size: 14px; border-radius: 20px; }
+  .pl-chips { grid-template-columns: repeat(4, 1fr); gap: 16px 6px; }
+  .pl-chip { height: 38px; font-size: 13px; border-radius: 19px; }
   .pl-make { margin-top: 28px; }
   .pl-result__art { width: 200px; height: 200px; }
   .pl-result__name { font-size: 28px; }

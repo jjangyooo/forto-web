@@ -6,7 +6,7 @@ create table if not exists public.fortos (
   name        text not null check (char_length(btrim(name)) between 1 and 20),
   keywords    text[] not null check (
                 array_length(keywords, 1) = 5
-                and keywords <@ array['호기심','용기','다정함','자유로움','신중함','열정','여유','상상력','단단함','유연함','고요함','도전']
+                and keywords <@ array['호기심','용기','다정함','자유로움','신중함','열정','여유','상상력','단단함','유연함','고요함','도전','끈기','섬세함','낭만','모험','솔직함','엉뚱함','따뜻함','영감','집중']
               ),
   lat         double precision not null check (lat between -90 and 90),
   lng         double precision not null check (lng between -180 and 180),

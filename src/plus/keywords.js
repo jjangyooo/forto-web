@@ -1,5 +1,5 @@
 /*
- * 키워드 12개 — "달에서 나는 어떤 모습일까?"
+ * 키워드 21개 (7 × 3) — "달에서 나는 어떤 모습일까?"
  * 각 키워드가 심볼에 주는 변화
  *   dir/push : 압출(확장) 방향(도, 0=오른쪽, 90=아래)과 세기
  *   slant    : 다리 기울기 (−: 더 눕힘)
@@ -23,6 +23,15 @@ export const KEYWORDS = {
   유연함:   { dir: -20, push: 20, bulge: 0.12, slant: -4 },
   고요함:   { dir: 120, push: 12, hue: 0.3, line: 6 },
   도전:     { dir: 60,  push: 36, slant: -6, hue: 0.1 },
+  끈기:     { dir: 100, push: 30, legW: 4, slant: 2 },
+  섬세함:   { dir: -60, push: 14, bladeW: -4, legW: -4, bulge: 0.06, hue: 0.2 },
+  낭만:     { dir: -130, push: 22, bulge: 0.1, hue: 0.4 },
+  모험:     { dir: 10,  push: 42, slant: -7, line: 8 },
+  솔직함:   { dir: 180, push: 18, bulge: -0.12, slant: 6 },
+  엉뚱함:   { dir: -150, push: 28, slant: -8, bulge: 0.14, hue: 0.25 },
+  따뜻함:   { dir: 45,  push: 20, bladeW: 2, hue: -0.35 },
+  영감:     { dir: -75, push: 26, hue: 0.35, line: 10 },
+  집중:     { dir: 90,  push: 34, legW: 3, bladeW: -3, bulge: -0.06 },
 };
 
 export const KEYWORD_LIST = Object.keys(KEYWORDS);
