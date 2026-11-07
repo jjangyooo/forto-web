@@ -8,6 +8,7 @@ import { createPlus } from './plus/plus.js';
 import { createGlass } from './glass.js';
 import logoUrl from './assets/forto-logo.svg';
 import homeUrl from './media/home.mp4';
+import homePoster from './media/home-poster.jpg';
 
 document.querySelector('.header__logo img').src = logoUrl;
 
@@ -27,6 +28,30 @@ const about = createAbout(aboutEl);
 landingVideo.src = homeUrl;
 landingVideo.loop = true;
 loopVideo.src = homeUrl;
+loopVideo.poster = homePoster;   // 재생이 막혀도 최종 장면은 보이도록
+
+/* 자동재생이 막히거나 늦을 때 대비
+ * - 저전력 모드·브라우저 정책으로 play()가 거부되면: 정지 화면을 보여주고, 첫 터치/클릭/키 입력 때 재생
+ * - 탭을 다시 보면 재생 재개 */
+let retryArmed = false;
+function armRetry() {
+  if (retryArmed) return;
+  retryArmed = true;
+  const go = () => {
+    retryArmed = false;
+    ['pointerdown', 'touchstart', 'keydown'].forEach((t) => window.removeEventListener(t, go, true));
+    if (current !== 'home') return;
+    const v = +gsap.getProperty(landingVideo, 'opacity') > 0.5 ? landingVideo : loopVideo;
+    v.play().catch(() => {});
+  };
+  ['pointerdown', 'touchstart', 'keydown'].forEach((t) => window.addEventListener(t, go, { capture: true, passive: true }));
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden || current !== 'home') return;
+  const v = +gsap.getProperty(landingVideo, 'opacity') > 0.5 ? landingVideo : loopVideo;
+  if (v.paused) v.play().catch(armRetry);
+});
+[landingVideo, loopVideo].forEach((v) => v.addEventListener('error', () => { if (v === landingVideo && !introDone) skipIntro(); }));
 
 /* 유리 효과: WebGL 가능하면 셰이더로, 아니면 기존 CSS 버전 유지 */
 try {
@@ -59,7 +84,7 @@ let introDone = false;
 // 인트로를 건너뛸 때(자동재생 차단·모션 줄이기·바로 다른 탭 진입)는 완성된 장면(10초)부터 재생
 function startLoop() {
   loopVideo.currentTime = 10;
-  loopVideo.play().catch(() => {});
+  loopVideo.play().catch(armRetry);
   gsap.set(loopVideo, { autoAlpha: 1 });
   gsap.set(landingVideo, { autoAlpha: 0 });
   landingVideo.pause();
@@ -70,6 +95,8 @@ function playLanding() {
   landingVideo.currentTime = 0;
   const p = landingVideo.play();
   if (p) p.catch(() => skipIntro());   // 자동재생이 막히면 바로 최종 상태로
+  // 4초가 지나도 영상이 시작되지 않으면(느린 네트워크·디코딩 실패) 최종 상태로
+  setTimeout(() => { if (!introDone && landingVideo.currentTime < 0.05) skipIntro(); }, 4000);
   watchCue();
 }
 
@@ -188,7 +215,7 @@ function hideView(key) {
   if (key === 'experience') {
     experience.leave();
     document.documentElement.classList.remove('is-exp');
-    loopVideo.play().catch(() => {});
+    loopVideo.play().catch(armRetry);
   }
   if (key === 'about') {
     about.leave();
